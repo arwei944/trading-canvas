@@ -34,6 +34,7 @@ import { useTranslation } from 'react-i18next';
 import { useExchangeStore } from '@trading.canvas/core';
 import { exchanges } from '@trading.canvas/core';
 import { useToast } from '../components/Toast';
+import { ListSkeleton } from '../components/Skeleton';
 
 // 交易所列表
 const exchangeOptions = Object.values(exchanges).map(e => ({
@@ -47,7 +48,7 @@ const exchangeOptions = Object.values(exchanges).map(e => ({
 export function ApiManagerPage() {
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const { exchanges, apis, addApi, removeApi, toggleStar, fetchExchanges } = useExchangeStore();
+  const { exchanges, apis, isLoading, addApi, removeApi, toggleStar, fetchExchanges } = useExchangeStore();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editApi, setEditApi] = useState<typeof apis[0] | null>(null);
@@ -146,6 +147,9 @@ export function ApiManagerPage() {
       </Box>
 
       {/* API列表 */}
+      {isLoading ? (
+        <ListSkeleton />
+      ) : (
       <Card>
         <CardContent sx={{ p: 0 }}>
           {apis.length === 0 ? (
@@ -216,6 +220,7 @@ export function ApiManagerPage() {
           )}
         </CardContent>
       </Card>
+      )}
 
       {/* 添加/编辑对话框 */}
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>

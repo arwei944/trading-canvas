@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next';
 import { useNoteStore } from '@trading.canvas/core';
 import type { TradeTag } from '@trading.canvas/core';
 import { useToast } from '../components/Toast';
+import { ListSkeleton } from '../components/Skeleton';
 
 /**
  * 标签管理页面
@@ -96,11 +97,7 @@ export function TagsPage() {
   };
 
   if (isLoading && tags.length === 0) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <ListSkeleton />;
   }
 
   return (

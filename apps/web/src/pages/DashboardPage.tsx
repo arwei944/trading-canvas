@@ -24,6 +24,7 @@ import { TrendChart } from '../components/TrendChart';
 import { AllocationPie } from '../components/AllocationPie';
 import { PositionTable } from '../components/PositionTable';
 import { OrderTable } from '../components/OrderTable';
+import { DashboardSkeleton } from '../components/Skeleton';
 import ReactECharts from 'echarts-for-react';
 
 function AccountTypeChart({ assets }: { assets: AssetBalance[] }) {
@@ -205,9 +206,7 @@ export function DashboardPage() {
                   </Box>
                 </Box>
                 {assetsLoading ? (
-                  <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                    <CircularProgress />
-                  </Box>
+                  <DashboardSkeleton />
                 ) : (
                   <AssetTable assets={assets} />
                 )}

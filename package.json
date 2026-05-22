@@ -2,21 +2,25 @@
   "name": "trading-canvas",
   "version": "0.3.0",
   "private": true,
-  "description": "\u57fa\u4e8e BlockCanvas \u7684\u52a0\u5bc6\u8d27\u5e01\u4ea4\u6613\u65e5\u5fd7\u524d\u7aef",
+  "description": "基于 BlockCanvas 的加密货币交易日志前端",
   "scripts": {
     "dev": "pnpm --filter web dev",
     "build": "pnpm --filter web build",
     "build:packages": "pnpm --filter '@trading.canvas/*' build",
-    "test": "pnpm --filter web test",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "pnpm --filter web lint",
     "clean": "rm -rf node_modules packages/*/dist apps/*/dist",
     "server:dev": "pnpm --filter @trading.canvas/server dev",
     "server:build": "pnpm --filter @trading.canvas/server build"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
+    "jsdom": "^29.1.1",
     "typescript": "^5.4.0",
     "vite": "^5.0.12",
     "vitest": "^1.2.2"

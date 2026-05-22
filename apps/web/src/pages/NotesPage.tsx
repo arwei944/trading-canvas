@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { useNoteStore } from '@trading.canvas/core';
 import type { Note as NoteType, TradeTag } from '@trading.canvas/core';
 import { useToast } from '../components/Toast';
+import { ListSkeleton } from '../components/Skeleton';
 
 // 格式化时间
 const formatTime = (timestamp: number) => {
@@ -127,11 +128,7 @@ export function NotesPage() {
   };
 
   if (isLoading && notes.length === 0) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <ListSkeleton />;
   }
 
   return (

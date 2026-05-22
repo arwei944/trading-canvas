@@ -13,6 +13,7 @@ import {
 import ReactECharts from 'echarts-for-react';
 import { useTranslation } from 'react-i18next';
 import { useCalendar } from '@trading.canvas/hooks';
+import { ChartSkeleton } from '../components/Skeleton';
 
 export interface CalendarPageProps {
   year?: number;
@@ -338,7 +339,7 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
           </Typography>
           <Box sx={{ height: 300 }}>
             {isLoading ? (
-              <Typography>{t('common.loading')}</Typography>
+              <ChartSkeleton height={300} />
             ) : (
               <ReactECharts
                 option={calendarOption}
@@ -358,7 +359,7 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
           </Typography>
           <Box sx={{ height: 300 }}>
             {isLoading ? (
-              <Typography>{t('common.loading')}</Typography>
+              <ChartSkeleton height={300} />
             ) : (
               <ReactECharts
                 option={trendOption}

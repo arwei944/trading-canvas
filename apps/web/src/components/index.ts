@@ -7,3 +7,4 @@ export { OrderTable } from './OrderTable';
 export { AllocationPie } from './AllocationPie';
 export { ErrorBoundary } from './ErrorBoundary';
 export { ToastProvider, useToast } from './Toast';
+export { CardSkeleton, TableSkeleton, ChartSkeleton, DashboardSkeleton, ListSkeleton } from './Skeleton';
