@@ -1,6 +1,6 @@
 // apps/web/src/pages/DashboardPage.tsx
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Box,
@@ -13,7 +13,6 @@ import {
   Chip,
   CircularProgress,
 } from '@mui/material';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useExchangeStore } from '@trading.canvas/core';
 import type { AssetBalance } from '@trading.canvas/core';

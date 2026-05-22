@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Box,
   Card,
@@ -8,7 +8,6 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Chip,
-  Paper,
 } from '@mui/material';
 import ReactECharts from 'echarts-for-react';
 import { useTranslation } from 'react-i18next';

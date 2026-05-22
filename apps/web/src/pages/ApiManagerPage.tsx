@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -26,13 +26,10 @@ import {
   Delete,
   Star,
   StarBorder,
-  Visibility,
-  VisibilityOff,
   Key,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { useExchangeStore } from '@trading.canvas/core';
-import { exchanges } from '@trading.canvas/core';
+import { useExchangeStore, exchanges } from '@trading.canvas/core';
 import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
 

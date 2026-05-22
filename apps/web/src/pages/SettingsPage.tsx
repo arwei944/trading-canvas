@@ -19,7 +19,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
-import { Sync, DeleteOutline, Download, CheckCircleOutline } from '@mui/icons-material';
+import { Sync, DeleteOutline, Download } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '@trading.canvas/core';
 

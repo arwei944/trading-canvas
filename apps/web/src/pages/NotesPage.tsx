@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -17,7 +17,6 @@ import {
   DialogContent,
   DialogActions,
   Grid,
-  CircularProgress,
 } from '@mui/material';
 import {
   Add,
@@ -27,7 +26,7 @@ import {
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useNoteStore } from '@trading.canvas/core';
-import type { Note as NoteType, TradeTag } from '@trading.canvas/core';
+import type { Note as NoteType } from '@trading.canvas/core';
 import { useToast } from '../components/Toast';
 import { ListSkeleton } from '../components/Skeleton';
 
