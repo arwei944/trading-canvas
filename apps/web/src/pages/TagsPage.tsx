@@ -24,6 +24,7 @@ import {
   Delete,
   LocalOffer,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { useNoteStore } from '@trading.canvas/core';
 import type { TradeTag } from '@trading.canvas/core';
 import { useToast } from '../components/Toast';
@@ -32,6 +33,7 @@ import { useToast } from '../components/Toast';
  * 标签管理页面
  */
 export function TagsPage() {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const tags = useNoteStore(s => s.tags);
   const isLoading = useNoteStore(s => s.isLoading);
@@ -70,25 +72,25 @@ export function TagsPage() {
     try {
       if (editTag) {
         await updateTag(editTag.id, { name: formData.name, color: formData.color });
-        showToast('标签更新成功', 'success');
+        showToast(t('tags.tagUpdated'), 'success');
       } else {
         await addTag({ name: formData.name, color: formData.color });
-        showToast('标签添加成功', 'success');
+        showToast(t('tags.tagAdded'), 'success');
       }
 
       handleCloseDialog();
     } catch (error: any) {
-      showToast('操作失败: ' + error.message, 'error');
+      showToast(t('common.operationFailed') + ': ' + error.message, 'error');
     }
   };
 
   const handleDelete = async (tagId: number) => {
-    if (window.confirm('确定要删除这个标签吗？')) {
+    if (window.confirm(t('tags.confirmDelete'))) {
       try {
         await deleteTag(tagId);
-        showToast('标签已删除', 'success');
+        showToast(t('tags.tagDeleted'), 'success');
       } catch (error: any) {
-        showToast('操作失败: ' + error.message, 'error');
+        showToast(t('common.operationFailed') + ': ' + error.message, 'error');
       }
     }
   };
@@ -105,14 +107,14 @@ export function TagsPage() {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4">
-          标签管理
+          {t('tags.title')}
         </Typography>
         <Button
           variant="contained"
           startIcon={<Add />}
           onClick={() => handleOpenDialog()}
         >
-          添加标签
+          {t('tags.add')}
         </Button>
       </Box>
 
@@ -122,7 +124,7 @@ export function TagsPage() {
             <Box sx={{ p: 4, textAlign: 'center' }}>
               <LocalOffer sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
               <Typography color="text.secondary">
-                暂无标签，点击上方添加
+                {t('tags.noTags')}
               </Typography>
             </Box>
           ) : (
@@ -151,7 +153,7 @@ export function TagsPage() {
                         {tag.name}
                       </Typography>
                     }
-                    secondary={`使用 ${tag.noteCount ?? 0} 次`}
+                    secondary={t('tags.count', { count: tag.noteCount ?? 0 })}
                   />
                   <ListItemSecondaryAction>
                     <IconButton onClick={() => handleOpenDialog(tag)}>
@@ -170,17 +172,17 @@ export function TagsPage() {
 
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="xs" fullWidth>
         <DialogTitle>
-          {editTag ? '编辑标签' : '添加标签'}
+          {editTag ? t('tags.edit') : t('tags.add')}
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="标签名称"
+                label={t('tags.name')}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="请输入标签名称"
+                placeholder={t('tags.name')}
               />
             </Grid>
             <Grid item xs={12}>
@@ -198,7 +200,7 @@ export function TagsPage() {
                 />
                 <TextField
                   fullWidth
-                  label="颜色代码"
+                  label={t('tags.colorCode')}
                   value={formData.color}
                   onChange={(e) => setFormData({ ...formData, color: e.target.value })}
                 />
@@ -207,13 +209,13 @@ export function TagsPage() {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>取消</Button>
+          <Button onClick={handleCloseDialog}>{t('common.cancel')}</Button>
           <Button
             variant="contained"
             onClick={handleSubmit}
             disabled={!formData.name}
           >
-            {editTag ? '保存' : '添加'}
+            {editTag ? t('common.save') : t('common.add')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -222,7 +224,7 @@ export function TagsPage() {
       <Card sx={{ mt: 3 }}>
         <CardContent>
           <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-            常用颜色
+            {t('tags.commonColors')}
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             {['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4'].map(color => (

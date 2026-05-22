@@ -52,10 +52,10 @@ export const useExchangeStore = create<ExchangeState>((set, get) => ({
   addApi: async (api) => {
     try {
       await ExchangeService.addExchangeApi({
-        exchange_id: api.exchangeId as number,
+        exchange_id: api.exchange_id as number,
         name: api.name || '',
-        api_key: api.apiKey || '',
-        secret_key: api.secretKey || '',
+        api_key: api.api_key || '',
+        secret_key: api.secret_key || '',
         passphrase: api.passphrase,
       });
       // 重新获取列表

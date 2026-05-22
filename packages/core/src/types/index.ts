@@ -5,20 +5,15 @@ export type ExchangeId = 1 | 2 | 3 | 4 | 6 | 8;
 
 export interface ExchangeAPI {
   id: number;
-  userId: number;
-  exchangeId: ExchangeId;
+  exchange_id: number;
   name: string;
-  apiKey: string;
-  secretKey: string;
+  api_key: string;       // 后端返回空字符串（脱敏）
+  secret_key: string;    // 后端返回空字符串（脱敏）
   passphrase?: string;
-  type: 1;
-  status: 1;
-  star: 0 | 1;
-  createTime: number;
-  updateTime: number | null;
-  expire: 1;
-  refreshRatio: number | null;
-  gateIpList: string | null;
+  star: number;          // 0 或 1
+  status: number;
+  created_at: number;    // 毫秒时间戳
+  updated_at: number | null;    // 毫秒时间戳
 }
 
 export interface ExchangeInfo {
@@ -176,17 +171,18 @@ export interface TradeTag {
   id: number;
   name: string;
   color: string;
-  tradeCount: number;
+  created_at: number;
   noteCount?: number;
+  tradeCount?: number;
 }
 
 export interface Note {
   id: number;
   title: string;
   content: string;
+  created_at: number;
+  updated_at: number;
   tags?: TradeTag[];
-  createdAt: number;
-  updatedAt: number;
 }
 
 // ============ API 响应类型 ============

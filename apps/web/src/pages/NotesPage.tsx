@@ -25,19 +25,21 @@ import {
   Delete,
   Note,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { useNoteStore } from '@trading.canvas/core';
 import type { Note as NoteType, TradeTag } from '@trading.canvas/core';
 import { useToast } from '../components/Toast';
 
 // 格式化时间
 const formatTime = (timestamp: number) => {
-  return new Date(timestamp).toLocaleString('zh-CN');
+  return new Date(timestamp).toLocaleString();
 };
 
 /**
  * 笔记页面
  */
 export function NotesPage() {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const notes = useNoteStore(s => s.notes);
   const tags = useNoteStore(s => s.tags);
@@ -97,29 +99,29 @@ export function NotesPage() {
           content: formData.content,
           tagIds: selectedTagIds,
         });
-        showToast('笔记更新成功', 'success');
+        showToast(t('notes.noteUpdated'), 'success');
       } else {
         await addNote({
           title: formData.title,
           content: formData.content,
           tagIds: selectedTagIds,
         });
-        showToast('笔记添加成功', 'success');
+        showToast(t('notes.noteAdded'), 'success');
       }
 
       handleCloseDialog();
     } catch (error: any) {
-      showToast('操作失败: ' + error.message, 'error');
+      showToast(t('common.operationFailed') + ': ' + error.message, 'error');
     }
   };
 
   const handleDelete = async (noteId: number) => {
-    if (window.confirm('确定要删除这篇笔记吗？')) {
+    if (window.confirm(t('notes.confirmDelete'))) {
       try {
         await deleteNote(noteId);
-        showToast('笔记已删除', 'success');
+        showToast(t('notes.noteDeleted'), 'success');
       } catch (error: any) {
-        showToast('操作失败: ' + error.message, 'error');
+        showToast(t('common.operationFailed') + ': ' + error.message, 'error');
       }
     }
   };
@@ -136,14 +138,14 @@ export function NotesPage() {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4">
-          交易笔记
+          {t('notes.title')}
         </Typography>
         <Button
           variant="contained"
           startIcon={<Add />}
           onClick={() => handleOpenDialog()}
         >
-          添加笔记
+          {t('notes.add')}
         </Button>
       </Box>
 
@@ -153,7 +155,7 @@ export function NotesPage() {
             <Box sx={{ p: 4, textAlign: 'center' }}>
               <Note sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
               <Typography color="text.secondary">
-                暂无笔记，点击上方添加
+                {t('notes.noNotes')}
               </Typography>
             </Box>
           ) : (
@@ -218,38 +220,38 @@ export function NotesPage() {
 
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {editNote ? '编辑笔记' : '添加笔记'}
+          {editNote ? t('notes.edit') : t('notes.add')}
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="标题"
+                label={t('notes.titleLabel')}
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="请输入笔记标题"
+                placeholder={t('notes.titlePlaceholder')}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="内容"
+                label={t('notes.contentLabel')}
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                placeholder="请输入笔记内容"
+                placeholder={t('notes.contentPlaceholder')}
                 multiline
                 rows={6}
               />
             </Grid>
             <Grid item xs={12}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                选择标签
+                {t('notes.selectTags')}
               </Typography>
               <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
                 {tags.length === 0 && (
                   <Typography variant="caption" color="text.disabled">
-                    暂无标签，请先在标签管理中添加
+                    {t('notes.noTagsInDialog')}
                   </Typography>
                 )}
                 {tags.map((tag) => {
@@ -277,13 +279,13 @@ export function NotesPage() {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>取消</Button>
+          <Button onClick={handleCloseDialog}>{t('common.cancel')}</Button>
           <Button
             variant="contained"
             onClick={handleSubmit}
             disabled={!formData.title || !formData.content}
           >
-            {editNote ? '保存' : '添加'}
+            {editNote ? t('common.save') : t('common.add')}
           </Button>
         </DialogActions>
       </Dialog>

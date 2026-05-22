@@ -24,28 +24,30 @@ import {
   Settings,
   Add,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 const DRAWER_WIDTH = 220;
 
 interface NavItem {
   path: string;
-  label: string;
+  labelKey: string;
   icon: React.ReactNode;
 }
 
-const navItems: NavItem[] = [
-  { path: '/dashboard', label: '总览', icon: <PieChartOutlined sx={{ fontSize: 20 }} /> },
-  { path: '/calendar', label: '日历', icon: <CalendarTodayOutlined sx={{ fontSize: 20 }} /> },
-  { path: '/tags', label: '标签', icon: <LabelOutlined sx={{ fontSize: 20 }} /> },
-  { path: '/notes', label: '笔记', icon: <EditNoteOutlined sx={{ fontSize: 20 }} /> },
-  { path: '/api', label: 'API管理', icon: <SettingsOutlined sx={{ fontSize: 20 }} /> },
-  { path: '/settings', label: '设置', icon: <Settings sx={{ fontSize: 20 }} /> },
+const navItemsConfig: NavItem[] = [
+  { path: '/dashboard', labelKey: 'nav.dashboard', icon: <PieChartOutlined sx={{ fontSize: 20 }} /> },
+  { path: '/calendar', labelKey: 'nav.calendar', icon: <CalendarTodayOutlined sx={{ fontSize: 20 }} /> },
+  { path: '/tags', labelKey: 'nav.tags', icon: <LabelOutlined sx={{ fontSize: 20 }} /> },
+  { path: '/notes', labelKey: 'nav.notes', icon: <EditNoteOutlined sx={{ fontSize: 20 }} /> },
+  { path: '/api', labelKey: 'nav.api', icon: <SettingsOutlined sx={{ fontSize: 20 }} /> },
+  { path: '/settings', labelKey: 'nav.settings', icon: <Settings sx={{ fontSize: 20 }} /> },
 ];
 
 /**
  * macOS 极简风格主布局
  */
 export function MainLayout() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -60,10 +62,10 @@ export function MainLayout() {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Logo区域 */}
       <Box sx={{ p: 3, pb: 2 }}>
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            fontWeight: 600, 
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
             letterSpacing: '-0.02em',
             color: '#1d1d1f',
             fontSize: '1.125rem'
@@ -75,7 +77,7 @@ export function MainLayout() {
 
       {/* 导航菜单 */}
       <List sx={{ px: 1.5, flex: 1 }}>
-        {navItems.map((item) => (
+        {navItemsConfig.map((item) => (
           <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
             <ListItemButton
               selected={location.pathname === item.path}
@@ -93,8 +95,8 @@ export function MainLayout() {
               <ListItemIcon sx={{ minWidth: 32, color: '#86868b' }}>
                 {item.icon}
               </ListItemIcon>
-              <ListItemText 
-                primary={item.label} 
+              <ListItemText
+                primary={t(item.labelKey)}
                 primaryTypographyProps={{
                   fontSize: '0.875rem',
                   fontWeight: 500,
@@ -122,8 +124,8 @@ export function MainLayout() {
             <ListItemIcon sx={{ minWidth: 32, color: '#007aff' }}>
               <Add sx={{ fontSize: 20 }} />
             </ListItemIcon>
-            <ListItemText 
-              primary="添加API" 
+            <ListItemText
+              primary={t('nav.addApi')}
               primaryTypographyProps={{
                 fontSize: '0.875rem',
                 fontWeight: 500,
@@ -162,8 +164,8 @@ export function MainLayout() {
       {/* 侧边栏 */}
       <Box
         component="nav"
-        sx={{ 
-          width: { md: DRAWER_WIDTH }, 
+        sx={{
+          width: { md: DRAWER_WIDTH },
           flexShrink: { md: 0 },
         }}
       >
@@ -184,7 +186,7 @@ export function MainLayout() {
         >
           {drawer}
         </Drawer>
-        
+
         {/* 桌面端固定侧边栏 */}
         <Drawer
           variant="permanent"

@@ -14,6 +14,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useExchangeStore } from '@trading.canvas/core';
 import type { AssetBalance } from '@trading.canvas/core';
 import { useAssets, usePositions, useOrders } from '@trading.canvas/hooks';
@@ -26,6 +27,7 @@ import { OrderTable } from '../components/OrderTable';
 import ReactECharts from 'echarts-for-react';
 
 function AccountTypeChart({ assets }: { assets: AssetBalance[] }) {
+  const { t } = useTranslation();
   const typeMap = new Map<string, number>();
   for (const asset of assets) {
     const type = asset.type || 'SPOT';
@@ -74,13 +76,14 @@ function AccountTypeChart({ assets }: { assets: AssetBalance[] }) {
   };
 
   if (data.length === 0) {
-    return <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>暂无数据</Typography>;
+    return <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>{t('dashboard.noData')}</Typography>;
   }
 
   return <ReactECharts option={option} style={{ height: 300 }} />;
 }
 
 export function DashboardPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const { exchanges, selectedApiId, selectApi, fetchExchanges } = useExchangeStore();
   const [tab, setTab] = useState(0);
@@ -103,7 +106,7 @@ export function DashboardPage() {
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6} md={2.4}>
           <SummaryCard
-            label="总资产"
+            label={t('dashboard.totalBalance')}
             value={stats?.assetsBalance ?? 0}
             prefix="$"
             color="primary"
@@ -111,7 +114,7 @@ export function DashboardPage() {
         </Grid>
         <Grid item xs={12} sm={6} md={2.4}>
           <SummaryCard
-            label="总充值"
+            label={t('dashboard.totalDeposit')}
             value={stats?.totalDeposit ?? 0}
             prefix="$"
             suffix={`${stats?.totalDepositBtcValuation?.toFixed(4) ?? 0} BTC`}
@@ -119,7 +122,7 @@ export function DashboardPage() {
         </Grid>
         <Grid item xs={12} sm={6} md={2.4}>
           <SummaryCard
-            label="总提现"
+            label={t('dashboard.totalWithdraw')}
             value={stats?.totalWithdraw ?? 0}
             prefix="$"
             suffix={`${stats?.totalWithdrawBtcValuation?.toFixed(4) ?? 0} BTC`}
@@ -127,7 +130,7 @@ export function DashboardPage() {
         </Grid>
         <Grid item xs={12} sm={6} md={2.4}>
           <SummaryCard
-            label="总盈亏"
+            label={t('dashboard.totalPnl')}
             value={stats?.overallPnl ?? 0}
             prefix="$"
             color={(stats?.overallPnl ?? 0) >= 0 ? 'success' : 'error'}
@@ -135,7 +138,7 @@ export function DashboardPage() {
         </Grid>
         <Grid item xs={12} sm={6} md={2.4}>
           <SummaryCard
-            label="合约盈亏"
+            label={t('dashboard.futuresPnl')}
             value={stats?.futuresPnl ?? 0}
             prefix="$"
             color={(stats?.futuresPnl ?? 0) >= 0 ? 'success' : 'error'}
@@ -146,9 +149,9 @@ export function DashboardPage() {
       {/* Tab 切换 */}
       <Card sx={{ mb: 3 }}>
         <Tabs value={tab} onChange={(_, v) => setTab(v)}>
-          <Tab label="总览" />
-          <Tab label="表现" />
-          <Tab label="分析" />
+          <Tab label={t('dashboard.tabOverview')} />
+          <Tab label={t('dashboard.tabPerformance')} />
+          <Tab label={t('dashboard.tabAnalysis')} />
         </Tabs>
       </Card>
 
@@ -159,7 +162,7 @@ export function DashboardPage() {
           <Grid item xs={12} lg={8}>
             <Card>
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>资产趋势</Typography>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('dashboard.trendChart')}</Typography>
                 <TrendChart apiId={apiId} height={300} />
               </CardContent>
             </Card>
@@ -169,7 +172,7 @@ export function DashboardPage() {
           <Grid item xs={12} lg={4}>
             <Card>
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>资产分布</Typography>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('dashboard.assetAllocation')}</Typography>
                 <AllocationPie assets={assets} />
               </CardContent>
             </Card>
@@ -181,21 +184,21 @@ export function DashboardPage() {
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                   <Typography variant="h6">
-                    全部资产 ({total})
+                    {t('dashboard.allAssets')} ({total})
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1 }}>
                     <Chip
-                      label="全部"
+                      label={t('dashboard.filterAll')}
                       variant={accountType === 'ALL' ? 'filled' : 'outlined'}
                       onClick={() => setAccountType('ALL')}
                     />
                     <Chip
-                      label="现货"
+                      label={t('dashboard.filterSpot')}
                       variant={accountType === 'SPOT' ? 'filled' : 'outlined'}
                       onClick={() => setAccountType('SPOT')}
                     />
                     <Chip
-                      label="合约"
+                      label={t('dashboard.filterFutures')}
                       variant={accountType === 'FUTURES' ? 'filled' : 'outlined'}
                       onClick={() => setAccountType('FUTURES')}
                     />
@@ -216,7 +219,7 @@ export function DashboardPage() {
           <Grid item xs={12}>
             <Card>
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>当前合约持仓</Typography>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('dashboard.currentPositions')}</Typography>
                 {positionsLoading ? (
                   <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                     <CircularProgress />
@@ -224,7 +227,7 @@ export function DashboardPage() {
                 ) : positions.length > 0 ? (
                   <PositionTable positions={positions} />
                 ) : (
-                  <Typography color="text.secondary">暂无持仓</Typography>
+                  <Typography color="text.secondary">{t('dashboard.noPositions')}</Typography>
                 )}
               </CardContent>
             </Card>
@@ -234,7 +237,7 @@ export function DashboardPage() {
           <Grid item xs={12}>
             <Card>
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>当前委托</Typography>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('dashboard.currentOrders')}</Typography>
                 {ordersLoading ? (
                   <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                     <CircularProgress />
@@ -242,7 +245,7 @@ export function DashboardPage() {
                 ) : orders.length > 0 ? (
                   <OrderTable orders={orders} />
                 ) : (
-                  <Typography color="text.secondary">暂无委托</Typography>
+                  <Typography color="text.secondary">{t('dashboard.noOrders')}</Typography>
                 )}
               </CardContent>
             </Card>
@@ -259,7 +262,7 @@ export function DashboardPage() {
               <Grid item xs={12} sm={4}>
                 <Card>
                   <CardContent>
-                    <Typography variant="body2" color="text.secondary">总盈亏</Typography>
+                    <Typography variant="body2" color="text.secondary">{t('dashboard.totalPnl')}</Typography>
                     <Typography variant="h5" sx={{ color: (stats?.overallPnl ?? 0) >= 0 ? 'success.main' : 'error.main', fontWeight: 'bold' }}>
                       ${(stats?.overallPnl ?? 0).toFixed(2)}
                     </Typography>
@@ -272,7 +275,7 @@ export function DashboardPage() {
               <Grid item xs={12} sm={4}>
                 <Card>
                   <CardContent>
-                    <Typography variant="body2" color="text.secondary">24h 变动</Typography>
+                    <Typography variant="body2" color="text.secondary">{t('dashboard.change24h')}</Typography>
                     <Typography variant="h5" sx={{ color: (stats?.assetsBalance24HChange ?? 0) >= 0 ? 'success.main' : 'error.main', fontWeight: 'bold' }}>
                       ${Math.abs(stats?.assetsBalance24HChange ?? 0).toFixed(2)}
                       {(stats?.assetsBalance24HChange ?? 0) >= 0 ? '↑' : '↓'}
@@ -283,7 +286,7 @@ export function DashboardPage() {
               <Grid item xs={12} sm={4}>
                 <Card>
                   <CardContent>
-                    <Typography variant="body2" color="text.secondary">合约盈亏</Typography>
+                    <Typography variant="body2" color="text.secondary">{t('dashboard.futuresPnl')}</Typography>
                     <Typography variant="h5" sx={{ color: (stats?.futuresPnl ?? 0) >= 0 ? 'success.main' : 'error.main', fontWeight: 'bold' }}>
                       ${(stats?.futuresPnl ?? 0).toFixed(2)}
                     </Typography>
@@ -297,7 +300,7 @@ export function DashboardPage() {
           <Grid item xs={12}>
             <Card>
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>资产趋势</Typography>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('dashboard.trendChart')}</Typography>
                 <TrendChart apiId={apiId} height={400} />
               </CardContent>
             </Card>
@@ -307,7 +310,7 @@ export function DashboardPage() {
           <Grid item xs={12}>
             <Card>
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>合约持仓详情</Typography>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('dashboard.positionDetails')}</Typography>
                 {positionsLoading ? (
                   <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                     <CircularProgress />
@@ -315,7 +318,7 @@ export function DashboardPage() {
                 ) : positions.length > 0 ? (
                   <PositionTable positions={positions} />
                 ) : (
-                  <Typography color="text.secondary">暂无持仓</Typography>
+                  <Typography color="text.secondary">{t('dashboard.noPositions')}</Typography>
                 )}
               </CardContent>
             </Card>
@@ -330,7 +333,7 @@ export function DashboardPage() {
           <Grid item xs={12} md={6}>
             <Card>
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>资产分布</Typography>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('dashboard.assetAllocation')}</Typography>
                 <AllocationPie assets={assets} />
               </CardContent>
             </Card>
@@ -340,7 +343,7 @@ export function DashboardPage() {
           <Grid item xs={12} md={6}>
             <Card>
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>账户类型分布</Typography>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('dashboard.accountTypeDistribution')}</Typography>
                 <AccountTypeChart assets={assets} />
               </CardContent>
             </Card>
@@ -350,11 +353,11 @@ export function DashboardPage() {
           <Grid item xs={12}>
             <Card>
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>充提统计</Typography>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('dashboard.depositWithdrawStats')}</Typography>
                 <Grid container spacing={3}>
                   <Grid item xs={6} sm={3}>
                     <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="body2" color="text.secondary">总充值</Typography>
+                      <Typography variant="body2" color="text.secondary">{t('dashboard.totalDeposit')}</Typography>
                       <Typography variant="h6">${(stats?.totalDeposit ?? 0).toFixed(2)}</Typography>
                       <Typography variant="caption" color="text.secondary">
                         {(stats?.totalDepositBtcValuation ?? 0).toFixed(4)} BTC
@@ -363,7 +366,7 @@ export function DashboardPage() {
                   </Grid>
                   <Grid item xs={6} sm={3}>
                     <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="body2" color="text.secondary">总提现</Typography>
+                      <Typography variant="body2" color="text.secondary">{t('dashboard.totalWithdraw')}</Typography>
                       <Typography variant="h6">${(stats?.totalWithdraw ?? 0).toFixed(2)}</Typography>
                       <Typography variant="caption" color="text.secondary">
                         {(stats?.totalWithdrawBtcValuation ?? 0).toFixed(4)} BTC
@@ -372,13 +375,13 @@ export function DashboardPage() {
                   </Grid>
                   <Grid item xs={6} sm={3}>
                     <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="body2" color="text.secondary">总资产</Typography>
+                      <Typography variant="body2" color="text.secondary">{t('dashboard.totalBalance')}</Typography>
                       <Typography variant="h6">${(stats?.assetsBalance ?? 0).toFixed(2)}</Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={6} sm={3}>
                     <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="body2" color="text.secondary">收益率</Typography>
+                      <Typography variant="body2" color="text.secondary">{t('dashboard.returnRate')}</Typography>
                       <Typography variant="h6" sx={{ color: (stats?.overallPnlPercent ?? 0) >= 0 ? 'success.main' : 'error.main' }}>
                         {(stats?.overallPnlPercent ?? 0).toFixed(2)}%
                       </Typography>
@@ -393,7 +396,7 @@ export function DashboardPage() {
           <Grid item xs={12}>
             <Card>
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>当前委托</Typography>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('dashboard.currentOrders')}</Typography>
                 {ordersLoading ? (
                   <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                     <CircularProgress />
@@ -401,7 +404,7 @@ export function DashboardPage() {
                 ) : orders.length > 0 ? (
                   <OrderTable orders={orders} />
                 ) : (
-                  <Typography color="text.secondary">暂无委托</Typography>
+                  <Typography color="text.secondary">{t('dashboard.noOrders')}</Typography>
                 )}
               </CardContent>
             </Card>

@@ -20,6 +20,7 @@ import {
   Alert,
 } from '@mui/material';
 import { Sync, DeleteOutline, Download, CheckCircleOutline } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { apiClient } from '@trading.canvas/core';
 
 // 设置项类型
@@ -29,27 +30,8 @@ interface Settings {
   currency_unit: string;
 }
 
-const SYNC_INTERVAL_OPTIONS = [
-  { value: '1', label: '1 分钟' },
-  { value: '5', label: '5 分钟' },
-  { value: '10', label: '10 分钟' },
-  { value: '30', label: '30 分钟' },
-  { value: '60', label: '60 分钟' },
-];
-
-const ACCOUNT_TYPE_OPTIONS = [
-  { value: 'ALL', label: '全部' },
-  { value: 'SPOT', label: '现货' },
-  { value: 'FUTURES', label: '合约' },
-];
-
-const CURRENCY_OPTIONS = [
-  { value: 'USD', label: 'USD' },
-  { value: 'CNY', label: 'CNY' },
-  { value: 'BTC', label: 'BTC' },
-];
-
 export function SettingsPage() {
+  const { t, i18n } = useTranslation();
   const [settings, setSettings] = useState<Settings>({
     sync_interval_minutes: '5',
     default_account_type: 'ALL',
@@ -98,10 +80,10 @@ export function SettingsPage() {
   const saveSettings = async (newSettings: Settings) => {
     try {
       await apiClient.put('/ex/settings', { settings: newSettings });
-      setSnackbar({ open: true, message: '设置已保存', severity: 'success' });
+      setSnackbar({ open: true, message: t('settings.settingsSaved'), severity: 'success' });
     } catch (err) {
       console.error('Failed to save settings:', err);
-      setSnackbar({ open: true, message: '保存失败，请重试', severity: 'error' });
+      setSnackbar({ open: true, message: t('settings.saveFailed'), severity: 'error' });
     }
   };
 
@@ -110,10 +92,10 @@ export function SettingsPage() {
     setSyncing(true);
     try {
       await apiClient.post('/ex/api/refresh');
-      setSnackbar({ open: true, message: '同步完成', severity: 'success' });
+      setSnackbar({ open: true, message: t('settings.syncComplete'), severity: 'success' });
     } catch (err) {
       console.error('Sync failed:', err);
-      setSnackbar({ open: true, message: '同步失败，请重试', severity: 'error' });
+      setSnackbar({ open: true, message: t('settings.syncFailed'), severity: 'error' });
     } finally {
       setSyncing(false);
     }
@@ -127,13 +109,37 @@ export function SettingsPage() {
   const confirmClearCache = () => {
     setConfirmOpen(false);
     // 暂时只做前端提示
-    setSnackbar({ open: true, message: '缓存已清除', severity: 'success' });
+    setSnackbar({ open: true, message: t('settings.cacheCleared'), severity: 'success' });
   };
 
   // 导出数据
   const handleExportData = () => {
-    setSnackbar({ open: true, message: '功能开发中', severity: 'info' });
+    setSnackbar({ open: true, message: t('settings.featureInProgress'), severity: 'info' });
   };
+
+  // 语言切换
+  const handleLanguageChange = (lng: string) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('language', lng);
+  };
+
+  const currentLanguage = i18n.language?.startsWith('zh') ? 'zh' : 'en';
+
+  // 同步间隔选项（动态翻译）
+  const syncIntervalOptions = [
+    { value: '1', label: t('settings.intervalMinute', { count: 1 }) },
+    { value: '5', label: t('settings.intervalMinute', { count: 5 }) },
+    { value: '10', label: t('settings.intervalMinute', { count: 10 }) },
+    { value: '30', label: t('settings.intervalMinute', { count: 30 }) },
+    { value: '60', label: t('settings.intervalMinute', { count: 60 }) },
+  ];
+
+  // 账户类型选项（动态翻译）
+  const accountTypeOptions = [
+    { value: 'ALL', label: t('dashboard.filterAll') },
+    { value: 'SPOT', label: t('dashboard.filterSpot') },
+    { value: 'FUTURES', label: t('dashboard.filterFutures') },
+  ];
 
   if (isLoading) {
     return (
@@ -155,7 +161,7 @@ export function SettingsPage() {
           color: '#1d1d1f',
         }}
       >
-        设置
+        {t('settings.title')}
       </Typography>
 
       {/* 同步设置 */}
@@ -170,7 +176,7 @@ export function SettingsPage() {
           mb: 1.5,
         }}
       >
-        同步设置
+        {t('settings.syncSettings')}
       </Typography>
       <Card
         sx={{
@@ -184,14 +190,14 @@ export function SettingsPage() {
           {/* 同步间隔 */}
           <Box sx={{ mb: 2.5 }}>
             <FormControl fullWidth size="small">
-              <InputLabel sx={{ fontSize: '0.875rem' }}>同步间隔</InputLabel>
+              <InputLabel sx={{ fontSize: '0.875rem' }}>{t('settings.syncInterval')}</InputLabel>
               <Select
                 value={settings.sync_interval_minutes}
-                label="同步间隔"
+                label={t('settings.syncInterval')}
                 onChange={(e) => handleChange('sync_interval_minutes', e.target.value)}
                 sx={{ fontSize: '0.875rem' }}
               >
-                {SYNC_INTERVAL_OPTIONS.map((opt) => (
+                {syncIntervalOptions.map((opt) => (
                   <MenuItem key={opt.value} value={opt.value} sx={{ fontSize: '0.875rem' }}>
                     {opt.label}
                   </MenuItem>
@@ -219,7 +225,7 @@ export function SettingsPage() {
               },
             }}
           >
-            {syncing ? '同步中...' : '手动同步'}
+            {syncing ? t('settings.syncing') : t('settings.manualSync')}
           </Button>
         </CardContent>
       </Card>
@@ -236,7 +242,7 @@ export function SettingsPage() {
           mb: 1.5,
         }}
       >
-        显示设置
+        {t('settings.displaySettings')}
       </Typography>
       <Card
         sx={{
@@ -247,17 +253,33 @@ export function SettingsPage() {
         }}
       >
         <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
+          {/* 语言切换 */}
+          <Box sx={{ mb: 2.5 }}>
+            <FormControl fullWidth size="small">
+              <InputLabel sx={{ fontSize: '0.875rem' }}>{t('settings.language')}</InputLabel>
+              <Select
+                value={currentLanguage}
+                label={t('settings.language')}
+                onChange={(e) => handleLanguageChange(e.target.value)}
+                sx={{ fontSize: '0.875rem' }}
+              >
+                <MenuItem value="zh" sx={{ fontSize: '0.875rem' }}>中文</MenuItem>
+                <MenuItem value="en" sx={{ fontSize: '0.875rem' }}>English</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
           {/* 默认账户类型 */}
           <Box sx={{ mb: 2.5 }}>
             <FormControl fullWidth size="small">
-              <InputLabel sx={{ fontSize: '0.875rem' }}>默认账户类型</InputLabel>
+              <InputLabel sx={{ fontSize: '0.875rem' }}>{t('settings.defaultAccountType')}</InputLabel>
               <Select
                 value={settings.default_account_type}
-                label="默认账户类型"
+                label={t('settings.defaultAccountType')}
                 onChange={(e) => handleChange('default_account_type', e.target.value)}
                 sx={{ fontSize: '0.875rem' }}
               >
-                {ACCOUNT_TYPE_OPTIONS.map((opt) => (
+                {accountTypeOptions.map((opt) => (
                   <MenuItem key={opt.value} value={opt.value} sx={{ fontSize: '0.875rem' }}>
                     {opt.label}
                   </MenuItem>
@@ -268,18 +290,16 @@ export function SettingsPage() {
 
           {/* 货币单位 */}
           <FormControl fullWidth size="small">
-            <InputLabel sx={{ fontSize: '0.875rem' }}>货币单位</InputLabel>
+            <InputLabel sx={{ fontSize: '0.875rem' }}>{t('settings.currencyUnit')}</InputLabel>
             <Select
               value={settings.currency_unit}
-              label="货币单位"
+              label={t('settings.currencyUnit')}
               onChange={(e) => handleChange('currency_unit', e.target.value)}
               sx={{ fontSize: '0.875rem' }}
             >
-              {CURRENCY_OPTIONS.map((opt) => (
-                <MenuItem key={opt.value} value={opt.value} sx={{ fontSize: '0.875rem' }}>
-                  {opt.label}
-                </MenuItem>
-              ))}
+              <MenuItem value="USD" sx={{ fontSize: '0.875rem' }}>USD</MenuItem>
+              <MenuItem value="CNY" sx={{ fontSize: '0.875rem' }}>CNY</MenuItem>
+              <MenuItem value="BTC" sx={{ fontSize: '0.875rem' }}>BTC</MenuItem>
             </Select>
           </FormControl>
         </CardContent>
@@ -297,7 +317,7 @@ export function SettingsPage() {
           mb: 1.5,
         }}
       >
-        数据管理
+        {t('settings.dataManagement')}
       </Typography>
       <Card
         sx={{
@@ -326,7 +346,7 @@ export function SettingsPage() {
                 },
               }}
             >
-              清除缓存
+              {t('settings.clearCache')}
             </Button>
             <Button
               variant="outlined"
@@ -345,7 +365,7 @@ export function SettingsPage() {
                 },
               }}
             >
-              导出数据
+              {t('settings.exportData')}
             </Button>
           </Box>
         </CardContent>
@@ -359,10 +379,10 @@ export function SettingsPage() {
           sx: { borderRadius: 2, minWidth: 360 },
         }}
       >
-        <DialogTitle sx={{ fontWeight: 600, fontSize: '1rem' }}>确认清除缓存</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 600, fontSize: '1rem' }}>{t('settings.confirmClearTitle')}</DialogTitle>
         <DialogContent>
           <Typography variant="body2" sx={{ color: '#86868b' }}>
-            清除缓存后，页面数据将在下次同步时重新加载。此操作不会删除您的账户数据。
+            {t('settings.confirmClearMessage')}
           </Typography>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -370,7 +390,7 @@ export function SettingsPage() {
             onClick={() => setConfirmOpen(false)}
             sx={{ textTransform: 'none', color: '#86868b' }}
           >
-            取消
+            {t('common.cancel')}
           </Button>
           <Button
             onClick={confirmClearCache}
@@ -382,7 +402,7 @@ export function SettingsPage() {
               '&:hover': { bgcolor: '#333' },
             }}
           >
-            确认清除
+            {t('settings.confirmClear')}
           </Button>
         </DialogActions>
       </Dialog>

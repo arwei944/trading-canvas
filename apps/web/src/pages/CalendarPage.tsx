@@ -11,6 +11,7 @@ import {
   Paper,
 } from '@mui/material';
 import ReactECharts from 'echarts-for-react';
+import { useTranslation } from 'react-i18next';
 import { useCalendar } from '@trading.canvas/hooks';
 
 export interface CalendarPageProps {
@@ -23,6 +24,7 @@ export interface CalendarPageProps {
  * 显示每日的盈亏数据，以热力图形式展示
  */
 export function CalendarPage({ year, month }: CalendarPageProps) {
+  const { t } = useTranslation();
   const currentDate = new Date();
   const [selectedYear, setSelectedYear] = useState(year || currentDate.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(month || currentDate.getMonth() + 1);
@@ -53,7 +55,7 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
     const totalDays = calendarData.length || 1;
     const winRate = (winDays / totalDays) * 100;
 
-    const sorted = [...calendarData].sort((a, b) => 
+    const sorted = [...calendarData].sort((a, b) =>
       Number(b.pnl || 0) - Number(a.pnl || 0)
     );
 
@@ -81,7 +83,7 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
     return {
       tooltip: {
         formatter: (params: any) => {
-          return `${params.value[0]}<br/>盈亏: $${params.value[1].toFixed(2)}`;
+          return `${params.value[0]}<br/>${t('calendar.pnlLabel')}: $${params.value[1].toFixed(2)}`;
         },
       },
       visualMap: {
@@ -127,7 +129,7 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
         },
       ],
     };
-  }, [calendarData, selectedYear, selectedMonth]);
+  }, [calendarData, selectedYear, selectedMonth, t]);
 
   // 每日盈亏趋势图
   const trendOption = useMemo(() => {
@@ -143,7 +145,7 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
         trigger: 'axis',
         formatter: (params: any) => {
           const p = params[0];
-          return `${p.axisValue}<br/>盈亏: $${p.value.toFixed(2)}`;
+          return `${p.axisValue}<br/>${t('calendar.pnlLabel')}: $${p.value.toFixed(2)}`;
         },
       },
       xAxis: {
@@ -169,7 +171,7 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
           type: 'bar',
           data: values,
           itemStyle: {
-            color: (params: any) => 
+            color: (params: any) =>
               params.value >= 0 ? '#56ab2f' : '#ff6b6b',
           },
           barWidth: '60%',
@@ -181,7 +183,7 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
           left: 'center',
           top: 'middle',
           style: {
-            text: '暂无数据',
+            text: t('common.noData'),
             textAlign: 'center',
             fill: '#666',
             fontSize: 14,
@@ -189,12 +191,12 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
         },
       ] : undefined,
     };
-  }, [calendarData]);
+  }, [calendarData, t]);
 
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        盈亏日历
+        {t('calendar.title')}
       </Typography>
 
       {/* 控制栏 */}
@@ -207,9 +209,9 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
               onChange={(_, value) => value && setTimeRange(value)}
               size="small"
             >
-              <ToggleButton value="week">本周</ToggleButton>
-              <ToggleButton value="month">本月</ToggleButton>
-              <ToggleButton value="year">本年</ToggleButton>
+              <ToggleButton value="week">{t('calendar.thisWeek')}</ToggleButton>
+              <ToggleButton value="month">{t('calendar.thisMonth')}</ToggleButton>
+              <ToggleButton value="year">{t('calendar.thisYear')}</ToggleButton>
             </ToggleButtonGroup>
 
             <Box sx={{ display: 'flex', gap: 1 }}>
@@ -228,7 +230,7 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
                   const currentYear = new Date().getFullYear();
                   const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
                   return years.map(y => (
-                    <option key={y} value={y}>{y}年</option>
+                    <option key={y} value={y}>{t('calendar.year', { count: y })}</option>
                   ));
                 })()}
               </select>
@@ -244,7 +246,7 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
                 }}
               >
                 {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
-                  <option key={m} value={m}>{m}月</option>
+                  <option key={m} value={m}>{t('calendar.month', { count: m })}</option>
                 ))}
               </select>
             </Box>
@@ -258,7 +260,7 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
           <Card>
             <CardContent>
               <Typography variant="caption" color="text.secondary">
-                总盈亏
+                {t('calendar.totalPnl')}
               </Typography>
               <Typography
                 variant="h5"
@@ -273,10 +275,10 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
           <Card>
             <CardContent>
               <Typography variant="caption" color="text.secondary">
-                盈利天数
+                {t('calendar.winDays')}
               </Typography>
               <Typography variant="h5" color="success.main">
-                {stats.winDays}天
+                {stats.winDays}{t('calendar.days')}
               </Typography>
             </CardContent>
           </Card>
@@ -285,10 +287,10 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
           <Card>
             <CardContent>
               <Typography variant="caption" color="text.secondary">
-                亏损天数
+                {t('calendar.lossDays')}
               </Typography>
               <Typography variant="h5" color="error.main">
-                {stats.lossDays}天
+                {stats.lossDays}{t('calendar.days')}
               </Typography>
             </CardContent>
           </Card>
@@ -297,7 +299,7 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
           <Card>
             <CardContent>
               <Typography variant="caption" color="text.secondary">
-                胜率
+                {t('calendar.winRate')}
               </Typography>
               <Typography variant="h5">
                 {stats.winRate.toFixed(1)}%
@@ -309,7 +311,7 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
           <Card>
             <CardContent>
               <Typography variant="caption" color="text.secondary">
-                最佳/最差
+                {t('calendar.bestWorst')}
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
                 <Chip
@@ -332,11 +334,11 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h6" gutterBottom>
-            盈亏热力图
+            {t('calendar.heatmap')}
           </Typography>
           <Box sx={{ height: 300 }}>
             {isLoading ? (
-              <Typography>加载中...</Typography>
+              <Typography>{t('common.loading')}</Typography>
             ) : (
               <ReactECharts
                 option={calendarOption}
@@ -352,11 +354,11 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
       <Card>
         <CardContent>
           <Typography variant="h6" gutterBottom>
-            每日盈亏
+            {t('calendar.dailyPnl')}
           </Typography>
           <Box sx={{ height: 300 }}>
             {isLoading ? (
-              <Typography>加载中...</Typography>
+              <Typography>{t('common.loading')}</Typography>
             ) : (
               <ReactECharts
                 option={trendOption}

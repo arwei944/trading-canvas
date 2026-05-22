@@ -30,6 +30,7 @@ import {
   VisibilityOff,
   Key,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { useExchangeStore } from '@trading.canvas/core';
 import { exchanges } from '@trading.canvas/core';
 import { useToast } from '../components/Toast';
@@ -44,9 +45,10 @@ const exchangeOptions = Object.values(exchanges).map(e => ({
  * API管理页面
  */
 export function ApiManagerPage() {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const { exchanges, apis, addApi, removeApi, toggleStar, fetchExchanges } = useExchangeStore();
-  
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editApi, setEditApi] = useState<typeof apis[0] | null>(null);
   const [showKey, setShowKey] = useState<Record<number, boolean>>({});
@@ -106,40 +108,40 @@ export function ApiManagerPage() {
         secretKey: formData.secretKey,
         passphrase: formData.passphrase || undefined,
       });
-      showToast('API添加成功', 'success');
+      showToast(t('api.apiAdded'), 'success');
       handleCloseDialog();
     } catch (error: any) {
-      showToast('操作失败: ' + error.message, 'error');
+      showToast(t('api.operationFailed') + ': ' + error.message, 'error');
     }
   };
 
   const handleDelete = async (apiId: number) => {
-    if (window.confirm('确定要删除这个API吗？')) {
+    if (window.confirm(t('api.confirmDelete'))) {
       try {
         await removeApi(apiId);
-        showToast('API已删除', 'success');
+        showToast(t('api.apiDeleted'), 'success');
       } catch (error: any) {
-        showToast('操作失败: ' + error.message, 'error');
+        showToast(t('api.operationFailed') + ': ' + error.message, 'error');
       }
     }
   };
 
   const getExchangeName = (exchangeId: number) => {
-    return exchanges[exchangeId]?.name || '未知交易所';
+    return exchanges[exchangeId]?.name || t('api.unknownExchange');
   };
 
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4">
-          API管理
+          {t('api.title')}
         </Typography>
         <Button
           variant="contained"
           startIcon={<Add />}
           onClick={() => handleOpenDialog()}
         >
-          添加API
+          {t('api.add')}
         </Button>
       </Box>
 
@@ -149,7 +151,7 @@ export function ApiManagerPage() {
           {apis.length === 0 ? (
             <Box sx={{ p: 4, textAlign: 'center' }}>
               <Typography color="text.secondary">
-                暂无API配置，请点击右上角添加
+                {t('api.noApis')}
               </Typography>
             </Box>
           ) : (
@@ -176,7 +178,7 @@ export function ApiManagerPage() {
                         />
                         {api.star === 1 && (
                           <Chip
-                            label="默认"
+                            label={t('api.default')}
                             size="small"
                             color="primary"
                           />
@@ -186,10 +188,10 @@ export function ApiManagerPage() {
                     secondary={
                       <Box sx={{ mt: 1 }}>
                         <Typography variant="body2" color="text.secondary">
-                          API Key: {api.apiKey ? `****${api.apiKey.slice(-4)}` : '未设置'}
+                          {t('api.apiKey')}: {api.apiKey ? `****${api.apiKey.slice(-4)}` : t('api.apiKeyNotSet')}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          创建时间: {new Date(api.created_at).toLocaleString('zh-CN')}
+                          {t('api.createdAt')}: {new Date(api.created_at).toLocaleString()}
                         </Typography>
                       </Box>
                     }
@@ -218,7 +220,7 @@ export function ApiManagerPage() {
       {/* 添加/编辑对话框 */}
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {editApi ? '编辑API' : '添加API'}
+          {editApi ? t('api.edit') : t('api.add')}
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -226,7 +228,7 @@ export function ApiManagerPage() {
               <TextField
                 select
                 fullWidth
-                label="交易所"
+                label={t('api.exchange')}
                 value={formData.exchangeId}
                 onChange={(e) => setFormData({ ...formData, exchangeId: Number(e.target.value) })}
               >
@@ -240,19 +242,19 @@ export function ApiManagerPage() {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="名称"
+                label={t('api.name')}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="例如：我的Binance账户"
+                placeholder={t('api.namePlaceholder')}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="API Key"
+                label={t('api.apiKey')}
                 value={formData.apiKey}
                 onChange={(e) => setFormData({ ...formData, apiKey: e.target.value })}
-                placeholder="请输入API Key"
+                placeholder={t('api.apiKeyPlaceholder')}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -265,35 +267,35 @@ export function ApiManagerPage() {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Secret Key"
+                label={t('api.secretKey')}
                 type="password"
                 value={formData.secretKey}
                 onChange={(e) => setFormData({ ...formData, secretKey: e.target.value })}
-                placeholder="请输入Secret Key"
+                placeholder={t('api.secretKeyPlaceholder')}
               />
             </Grid>
             {exchanges[formData.exchangeId]?.name === 'OKX' && ( // OKX需要passphrase
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Passphrase"
+                  label={t('api.passphrase')}
                   type="password"
                   value={formData.passphrase}
                   onChange={(e) => setFormData({ ...formData, passphrase: e.target.value })}
-                  placeholder="请输入Passphrase"
+                  placeholder={t('api.passphrasePlaceholder')}
                 />
               </Grid>
             )}
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>取消</Button>
+          <Button onClick={handleCloseDialog}>{t('common.cancel')}</Button>
           <Button
             variant="contained"
             onClick={handleSubmit}
             disabled={!formData.name || !formData.apiKey || !formData.secretKey}
           >
-            {editApi ? '保存' : '添加'}
+            {editApi ? t('common.save') : t('common.add')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -302,14 +304,11 @@ export function ApiManagerPage() {
       <Card sx={{ mt: 3 }}>
         <CardContent>
           <Typography variant="h6" color="warning.main" gutterBottom>
-            安全提示
+            {t('api.securityTips')}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            1. 请确保您的API密钥仅具有读取权限，不要提供提现权限。<br/>
-            2. 我们不会存储您的Secret Key，仅保存在本地浏览器中。<br/>
-            3. 请勿在公共电脑上使用本系统。<br/>
-            4. 建议为每个交易所创建单独的API密钥。
-          </Typography>
+          <Typography variant="body2" color="text.secondary" dangerouslySetInnerHTML={{
+            __html: t('api.securityTipsContent'),
+          }} />
         </CardContent>
       </Card>
     </Box>

@@ -13,6 +13,7 @@ import {
   Chip,
 } from '@mui/material';
 import { ArrowBack, Refresh } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import {
   SummaryCard,
   TrendChart,
@@ -26,6 +27,7 @@ import {
  * 显示单个交易所账户的详细数据
  */
 export function AccountDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
@@ -147,7 +149,7 @@ export function AccountDetailPage() {
           startIcon={<Refresh />}
           onClick={handleRefresh}
         >
-          刷新
+          {t('accountDetail.refresh')}
         </Button>
       </Box>
 
@@ -155,14 +157,14 @@ export function AccountDetailPage() {
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={6} md={3}>
           <SummaryCard
-            title="账户余额"
+            title={t('accountDetail.accountBalance')}
             value={`$${accountData.totalBalance.toFixed(2)}`}
             color="primary"
           />
         </Grid>
         <Grid item xs={6} md={3}>
           <SummaryCard
-            title="今日盈亏"
+            title={t('accountDetail.todayPnl')}
             value={`$${accountData.todayPnl >= 0 ? '+' : ''}${accountData.todayPnl.toFixed(2)}`}
             change={`${accountData.todayPnlRate >= 0 ? '+' : ''}${accountData.todayPnlRate.toFixed(2)}%`}
             color={accountData.todayPnl >= 0 ? 'success' : 'error'}
@@ -170,7 +172,7 @@ export function AccountDetailPage() {
         </Grid>
         <Grid item xs={6} md={3}>
           <SummaryCard
-            title="累计盈亏"
+            title={t('accountDetail.totalPnl')}
             value={`$${accountData.totalPnl >= 0 ? '+' : ''}${accountData.totalPnl.toFixed(2)}`}
             change={`${accountData.totalPnlRate >= 0 ? '+' : ''}${accountData.totalPnlRate.toFixed(2)}%`}
             color={accountData.totalPnl >= 0 ? 'success' : 'error'}
@@ -178,9 +180,9 @@ export function AccountDetailPage() {
         </Grid>
         <Grid item xs={6} md={3}>
           <SummaryCard
-            title="持仓数"
+            title={t('accountDetail.positionCount')}
             value={positions.length.toString()}
-            subtitle="个合约"
+            subtitle={t('accountDetail.positionUnit')}
           />
         </Grid>
       </Grid>
@@ -189,7 +191,7 @@ export function AccountDetailPage() {
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h6" gutterBottom>
-            资产趋势
+            {t('dashboard.trendChart')}
           </Typography>
           <Box sx={{ height: 300 }}>
             <TrendChart data={trendData} />
@@ -204,9 +206,9 @@ export function AccountDetailPage() {
             value={activeTab}
             onChange={(_, value) => setActiveTab(value)}
           >
-            <Tab label="资产" />
-            <Tab label="持仓" />
-            <Tab label="委托" />
+            <Tab label={t('accountDetail.tabAssets')} />
+            <Tab label={t('accountDetail.tabPositions')} />
+            <Tab label={t('accountDetail.tabOrders')} />
           </Tabs>
         </Box>
         <CardContent>
