@@ -177,12 +177,14 @@ export interface TradeTag {
   name: string;
   color: string;
   tradeCount: number;
+  noteCount?: number;
 }
 
 export interface Note {
   id: number;
   title: string;
   content: string;
+  tags?: TradeTag[];
   createdAt: number;
   updatedAt: number;
 }

@@ -10,3 +10,4 @@ export {
   getCalendar,
   getDepositWithdrawStats,
 } from './exchange';
+export { noteTagService } from './note';
