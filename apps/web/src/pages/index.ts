@@ -5,3 +5,4 @@ export { TagsPage } from './TagsPage';
 export { NotesPage } from './NotesPage';
 export { ApiManagerPage } from './ApiManagerPage';
 export { AccountDetailPage } from './AccountDetailPage';
+export { SettingsPage } from './SettingsPage';

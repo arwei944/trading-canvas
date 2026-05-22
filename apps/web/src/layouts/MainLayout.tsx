@@ -21,6 +21,7 @@ import {
   LabelOutlined,
   EditNoteOutlined,
   SettingsOutlined,
+  Settings,
   Add,
 } from '@mui/icons-material';
 
@@ -38,6 +39,7 @@ const navItems: NavItem[] = [
   { path: '/tags', label: '标签', icon: <LabelOutlined sx={{ fontSize: 20 }} /> },
   { path: '/notes', label: '笔记', icon: <EditNoteOutlined sx={{ fontSize: 20 }} /> },
   { path: '/api', label: 'API管理', icon: <SettingsOutlined sx={{ fontSize: 20 }} /> },
+  { path: '/settings', label: '设置', icon: <Settings sx={{ fontSize: 20 }} /> },
 ];
 
 /**

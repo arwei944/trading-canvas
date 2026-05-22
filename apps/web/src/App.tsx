@@ -6,6 +6,7 @@ import {
   TagsPage,
   NotesPage,
   ApiManagerPage,
+  SettingsPage,
 } from './pages';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useTheme } from '@mui/material/styles';
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="notes" element={<NotesPage />} />
             <Route path="api" element={<ApiManagerPage />} />
             <Route path="api/add" element={<ApiManagerPage />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

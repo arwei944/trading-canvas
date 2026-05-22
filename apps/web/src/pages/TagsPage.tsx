@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -11,12 +11,12 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   IconButton,
-  Chip,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Grid,
+  CircularProgress,
 } from '@mui/material';
 import {
   Add,
@@ -24,31 +24,29 @@ import {
   Delete,
   LocalOffer,
 } from '@mui/icons-material';
-
-interface Tag {
-  id: number;
-  name: string;
-  color: string;
-  count: number;
-}
+import { useNoteStore } from '@trading.canvas/core';
+import type { TradeTag } from '@trading.canvas/core';
 
 /**
  * 标签管理页面
  */
 export function TagsPage() {
-  const [tags, setTags] = useState<Tag[]>([
-    { id: 1, name: '突破', color: '#5470c6', count: 15 },
-    { id: 2, name: '止损', color: '#ee6666', count: 8 },
-    { id: 3, name: '波段', color: '#91cc75', count: 23 },
-    { id: 4, name: '短线', color: '#fac858', count: 12 },
-    { id: 5, name: '长线', color: '#73c0de', count: 5 },
-  ]);
-  
+  const tags = useNoteStore(s => s.tags);
+  const isLoading = useNoteStore(s => s.isLoading);
+  const fetchTags = useNoteStore(s => s.fetchTags);
+  const addTag = useNoteStore(s => s.addTag);
+  const updateTag = useNoteStore(s => s.updateTag);
+  const deleteTag = useNoteStore(s => s.deleteTag);
+
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editTag, setEditTag] = useState<Tag | null>(null);
+  const [editTag, setEditTag] = useState<TradeTag | null>(null);
   const [formData, setFormData] = useState({ name: '', color: '#5470c6' });
 
-  const handleOpenDialog = (tag?: Tag) => {
+  useEffect(() => {
+    fetchTags();
+  }, []);
+
+  const handleOpenDialog = (tag?: TradeTag) => {
     if (tag) {
       setEditTag(tag);
       setFormData({ name: tag.name, color: tag.color });
@@ -64,33 +62,31 @@ export function TagsPage() {
     setEditTag(null);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.name) return;
 
     if (editTag) {
-      setTags(tags.map(t => 
-        t.id === editTag.id 
-          ? { ...t, name: formData.name, color: formData.color }
-          : t
-      ));
+      await updateTag(editTag.id, { name: formData.name, color: formData.color });
     } else {
-      const newTag: Tag = {
-        id: Date.now(),
-        name: formData.name,
-        color: formData.color,
-        count: 0,
-      };
-      setTags([...tags, newTag]);
+      await addTag({ name: formData.name, color: formData.color });
     }
 
     handleCloseDialog();
   };
 
-  const handleDelete = (tagId: number) => {
+  const handleDelete = async (tagId: number) => {
     if (window.confirm('确定要删除这个标签吗？')) {
-      setTags(tags.filter(t => t.id !== tagId));
+      await deleteTag(tagId);
     }
   };
+
+  if (isLoading && tags.length === 0) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box>
@@ -109,44 +105,53 @@ export function TagsPage() {
 
       <Card>
         <CardContent sx={{ p: 0 }}>
-          <List>
-            {tags.map((tag) => (
-              <ListItem
-                key={tag.id}
-                sx={{
-                  borderBottom: '1px solid',
-                  borderColor: 'divider',
-                  '&:last-child': { borderBottom: 'none' },
-                }}
-              >
-                <Box
+          {tags.length === 0 ? (
+            <Box sx={{ p: 4, textAlign: 'center' }}>
+              <LocalOffer sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
+              <Typography color="text.secondary">
+                暂无标签，点击上方添加
+              </Typography>
+            </Box>
+          ) : (
+            <List>
+              {tags.map((tag) => (
+                <ListItem
+                  key={tag.id}
                   sx={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: '50%',
-                    backgroundColor: tag.color,
-                    mr: 2,
+                    borderBottom: '1px solid',
+                    borderColor: 'divider',
+                    '&:last-child': { borderBottom: 'none' },
                   }}
-                />
-                <ListItemText
-                  primary={
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      {tag.name}
-                    </Typography>
-                  }
-                  secondary={`使用 ${tag.count} 次`}
-                />
-                <ListItemSecondaryAction>
-                  <IconButton onClick={() => handleOpenDialog(tag)}>
-                    <Edit />
-                  </IconButton>
-                  <IconButton onClick={() => handleDelete(tag.id)} color="error">
-                    <Delete />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
+                >
+                  <Box
+                    sx={{
+                      width: 16,
+                      height: 16,
+                      borderRadius: '50%',
+                      backgroundColor: tag.color,
+                      mr: 2,
+                    }}
+                  />
+                  <ListItemText
+                    primary={
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {tag.name}
+                      </Typography>
+                    }
+                    secondary={`使用 ${tag.noteCount ?? 0} 次`}
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton onClick={() => handleOpenDialog(tag)}>
+                      <Edit />
+                    </IconButton>
+                    <IconButton onClick={() => handleDelete(tag.id)} color="error">
+                      <Delete />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              ))}
+            </List>
+          )}
         </CardContent>
       </Card>
 

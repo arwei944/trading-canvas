@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogActions,
   Grid,
+  CircularProgress,
 } from '@mui/material';
 import {
   Add,
@@ -24,15 +25,8 @@ import {
   Delete,
   Note,
 } from '@mui/icons-material';
-
-interface NoteItem {
-  id: number;
-  title: string;
-  content: string;
-  tags: string[];
-  createTime: number;
-  updateTime: number;
-}
+import { useNoteStore } from '@trading.canvas/core';
+import type { Note as NoteType, TradeTag } from '@trading.canvas/core';
 
 // 格式化时间
 const formatTime = (timestamp: number) => {
@@ -43,40 +37,37 @@ const formatTime = (timestamp: number) => {
  * 笔记页面
  */
 export function NotesPage() {
-  const [notes, setNotes] = useState<NoteItem[]>([
-    {
-      id: 1,
-      title: 'BTC突破关键阻力位',
-      content: '今天BTC突破了50000美元的关键阻力位，成交量明显放大。预计短期内可能继续上涨，但需要注意回调风险。',
-      tags: ['突破', 'BTC'],
-      createTime: Date.now() - 86400000,
-      updateTime: Date.now() - 86400000,
-    },
-    {
-      id: 2,
-      title: '止损离场记录',
-      content: 'ETH做空止损，亏损2%。下次需要更加注意止损位的设置。',
-      tags: ['止损', 'ETH'],
-      createTime: Date.now() - 172800000,
-      updateTime: Date.now() - 172800000,
-    },
-  ]);
-  
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editNote, setEditNote] = useState<NoteItem | null>(null);
-  const [formData, setFormData] = useState({ title: '', content: '', tags: '' });
+  const notes = useNoteStore(s => s.notes);
+  const tags = useNoteStore(s => s.tags);
+  const isLoading = useNoteStore(s => s.isLoading);
+  const fetchNotes = useNoteStore(s => s.fetchNotes);
+  const fetchTags = useNoteStore(s => s.fetchTags);
+  const addNote = useNoteStore(s => s.addNote);
+  const updateNote = useNoteStore(s => s.updateNote);
+  const deleteNote = useNoteStore(s => s.deleteNote);
 
-  const handleOpenDialog = (note?: NoteItem) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editNote, setEditNote] = useState<NoteType | null>(null);
+  const [formData, setFormData] = useState({ title: '', content: '' });
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    fetchNotes();
+    fetchTags();
+  }, []);
+
+  const handleOpenDialog = (note?: NoteType) => {
     if (note) {
       setEditNote(note);
       setFormData({
         title: note.title,
         content: note.content,
-        tags: note.tags.join(', '),
       });
+      setSelectedTagIds((note.tags || []).map(t => t.id));
     } else {
       setEditNote(null);
-      setFormData({ title: '', content: '', tags: '' });
+      setFormData({ title: '', content: '' });
+      setSelectedTagIds([]);
     }
     setDialogOpen(true);
   };
@@ -86,46 +77,47 @@ export function NotesPage() {
     setEditNote(null);
   };
 
-  const handleSubmit = () => {
+  const handleToggleTag = (tagId: number) => {
+    setSelectedTagIds(prev =>
+      prev.includes(tagId)
+        ? prev.filter(id => id !== tagId)
+        : [...prev, tagId]
+    );
+  };
+
+  const handleSubmit = async () => {
     if (!formData.title || !formData.content) return;
 
-    const tagList = formData.tags
-      .split(',')
-      .map(t => t.trim())
-      .filter(t => t);
-
     if (editNote) {
-      setNotes(notes.map(n => 
-        n.id === editNote.id 
-          ? { 
-              ...n, 
-              title: formData.title, 
-              content: formData.content, 
-              tags: tagList,
-              updateTime: Date.now(),
-            }
-          : n
-      ));
-    } else {
-      const newNote: NoteItem = {
-        id: Date.now(),
+      await updateNote(editNote.id, {
         title: formData.title,
         content: formData.content,
-        tags: tagList,
-        createTime: Date.now(),
-        updateTime: Date.now(),
-      };
-      setNotes([newNote, ...notes]);
+        tagIds: selectedTagIds,
+      });
+    } else {
+      await addNote({
+        title: formData.title,
+        content: formData.content,
+        tagIds: selectedTagIds,
+      });
     }
 
     handleCloseDialog();
   };
 
-  const handleDelete = (noteId: number) => {
+  const handleDelete = async (noteId: number) => {
     if (window.confirm('确定要删除这篇笔记吗？')) {
-      setNotes(notes.filter(n => n.id !== noteId));
+      await deleteNote(noteId);
     }
   };
+
+  if (isLoading && notes.length === 0) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box>
@@ -188,16 +180,20 @@ export function NotesPage() {
                     </ListItemSecondaryAction>
                   </Box>
                   <Box sx={{ display: 'flex', gap: 0.5, mt: 1, flexWrap: 'wrap' }}>
-                    {note.tags.map((tag, index) => (
+                    {(note.tags || []).map((tag) => (
                       <Chip
-                        key={index}
-                        label={tag}
+                        key={tag.id}
+                        label={tag.name}
                         size="small"
                         variant="outlined"
+                        sx={{
+                          borderColor: tag.color,
+                          color: tag.color,
+                        }}
                       />
                     ))}
                     <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto' }}>
-                      {formatTime(note.updateTime)}
+                      {formatTime(note.updatedAt)}
                     </Typography>
                   </Box>
                 </ListItem>
@@ -234,14 +230,36 @@ export function NotesPage() {
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="标签"
-                value={formData.tags}
-                onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                placeholder="多个标签用逗号分隔，例如：突破,BTC"
-                helperText="多个标签用逗号分隔"
-              />
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                选择标签
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                {tags.length === 0 && (
+                  <Typography variant="caption" color="text.disabled">
+                    暂无标签，请先在标签管理中添加
+                  </Typography>
+                )}
+                {tags.map((tag) => {
+                  const isSelected = selectedTagIds.includes(tag.id);
+                  return (
+                    <Chip
+                      key={tag.id}
+                      label={tag.name}
+                      size="small"
+                      variant={isSelected ? 'filled' : 'outlined'}
+                      onClick={() => handleToggleTag(tag.id)}
+                      sx={{
+                        borderColor: tag.color,
+                        color: isSelected ? '#fff' : tag.color,
+                        backgroundColor: isSelected ? tag.color : 'transparent',
+                        '&:hover': {
+                          backgroundColor: isSelected ? tag.color : `${tag.color}20`,
+                        },
+                      }}
+                    />
+                  );
+                })}
+              </Box>
             </Grid>
           </Grid>
         </DialogContent>
