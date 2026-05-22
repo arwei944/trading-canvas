@@ -134,7 +134,7 @@ dataRouter.get('/depositAndWithdraw/sta', async (req: Request, res: Response) =>
       return;
     }
 
-    const data = dataService.getDepositWithdrawStats(apiId);
+    const data = await dataService.getDepositWithdrawStats(apiId);
     res.json(success(data));
   } catch (err: any) {
     res.json(fail(err.message));

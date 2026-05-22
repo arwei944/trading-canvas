@@ -50,11 +50,25 @@ function createEmptyAssetResponse(page: number, pageSize: number): AssetResponse
   };
 }
 
-/** 根据交易所名称推断资产类型 */
-function inferAccountType(exchangeId: number, _currency: string): AccountType {
-  // 目前 ccxt fetchBalance 返回的是现货余额
-  // 后续可以根据 exchange_id 和 info 中的字段进一步区分
-  return 'SPOT';
+/** 根据余额类型推断资产类型 */
+function inferAccountType(_exchangeId: number, _currency: string, balanceType: string): AccountType {
+  switch (balanceType) {
+    case 'future':
+    case 'swap':
+    case 'contract':
+      return 'FUTURES';
+    case 'margin':
+      return 'MARGIN';
+    case 'funding':
+      return 'FUNDING';
+    case 'earn':
+    case 'lending':
+    case 'savings':
+      return 'EARN';
+    case 'spot':
+    default:
+      return 'SPOT';
+  }
 }
 
 /** 获取交易所 Logo */
@@ -123,22 +137,40 @@ export async function getAssets(
 
   const exchange = createExchange(api);
 
-  // 拉取余额
-  const balance = await safeCall(
+  // 拉取现货余额（默认）
+  const spotBalance = await safeCall(
     () => exchange.fetchBalance(),
     { total: {}, free: {}, used: {}, info: {} } as any
   );
 
-  const totalBalances = balance.total || {};
-  const freeBalances = balance.free || {};
-  const usedBalances = balance.used || {};
+  // 尝试获取合约余额
+  const futuresBalance = await safeCall(
+    () => exchange.fetchBalance({ type: 'swap' }),
+    { total: {}, free: {}, used: {}, info: {} } as any
+  );
 
-  // 过滤出有余额的币种
-  const currencies = Object.entries(totalBalances)
-    .filter(([, amount]) => amount > 0)
-    .map(([currency, amount]) => ({ currency, amount: amount as number }));
+  // 处理余额数据，返回带类型的币种列表
+  const processBalances = (balance: any, balanceType: string) => {
+    const totalBalances = balance.total || {};
+    return Object.entries(totalBalances)
+      .filter(([, amount]) => amount > 0)
+      .map(([currency, amount]) => ({
+        currency,
+        amount: amount as number,
+        type: inferAccountType(api.exchange_id, currency, balanceType),
+      }));
+  };
 
-  if (currencies.length === 0) {
+  const spotItems = processBalances(spotBalance, 'spot');
+  const futuresItems = processBalances(futuresBalance, 'swap');
+
+  // 合并所有余额项（同一币种在现货和合约都有时，保留两者）
+  const allItems = [...spotItems];
+  for (const fi of futuresItems) {
+    allItems.push(fi);
+  }
+
+  if (allItems.length === 0) {
     return createEmptyAssetResponse(page, pageSize);
   }
 
@@ -146,11 +178,14 @@ export async function getAssets(
   const priceMap = new Map<string, number>();
   const priceChangeMap = new Map<string, { change24h: number; changePercent24h: number }>();
 
+  // 收集需要查询价格的币种（去重）
+  const allCurrencies = [...new Set(allItems.map(item => item.currency))];
+
   await safeCall(async () => {
     // 尝试批量获取价格
-    const symbols = currencies
-      .filter(c => c.currency !== 'USDT' && c.currency !== 'USDC')
-      .map(c => `${c.currency}/USDT`);
+    const symbols = allCurrencies
+      .filter(c => c !== 'USDT' && c !== 'USDC')
+      .map(c => `${c}/USDT`);
 
     // 分批获取，避免请求过多
     const batchSize = 10;
@@ -179,11 +214,10 @@ export async function getAssets(
 
   // 构建资产列表
   const now = Date.now();
-  const assetBalances: AssetBalance[] = currencies.map(({ currency, amount }) => {
+  const assetBalances: AssetBalance[] = allItems.map(({ currency, amount, type }) => {
     const price = priceMap.get(currency) || 0;
     const usdValuation = price * amount;
     const priceInfo = priceChangeMap.get(currency) || { change24h: 0, changePercent24h: 0 };
-    const type = inferAccountType(api.exchange_id, currency);
 
     return {
       radio: 0, // 后续计算占比
@@ -345,7 +379,7 @@ export async function getOrders(apiId: number): Promise<OrderData[]> {
  * 获取充提统计
  * 从 asset_snapshots 表计算
  */
-export function getDepositWithdrawStats(apiId: number): DepositWithdrawStats {
+export async function getDepositWithdrawStats(apiId: number): Promise<DepositWithdrawStats> {
   const db = getDb();
   const today = getTodayStr();
 
@@ -373,17 +407,38 @@ export function getDepositWithdrawStats(apiId: number): DepositWithdrawStats {
   const overallPnlPercent = firstBalance > 0 ? (overallPnl / firstBalance) * 100 : 0;
   const assetsBalance24HChange = assetsBalance - yesterdayBalance;
 
-  // BTC 价格用于 BTC 估值
-  const btcPrice = 0; // 需要外部传入，暂时为 0
+  // 获取 BTC 价格
+  let btcPrice = 0;
+  try {
+    const prices = await getBTCETHPrice();
+    btcPrice = prices.btcPrice;
+  } catch {
+    // 获取失败不影响其他数据
+  }
+
+  // 获取合约未实现盈亏
+  let futuresPnl = 0;
+  try {
+    const positions = await getPositions(apiId);
+    futuresPnl = positions.reduce((sum, p) => sum + p.unrealizedPnl, 0);
+    futuresPnl = Math.round(futuresPnl * 100) / 100;
+  } catch {
+    // 获取失败不影响其他数据
+  }
+
+  // TODO: totalDeposit/totalWithdraw 需要交易所特定的充提历史 API
+  // 各交易所充提接口不统一，暂时使用首次快照值作为初始充值的近似值
+  const totalDeposit = firstBalance > 0 ? firstBalance : 0;
+  const totalWithdraw = 0;
 
   return {
-    totalDeposit: 0,
-    totalWithdraw: 0,
-    totalDepositBtcValuation: btcPrice > 0 ? 0 / btcPrice : 0,
+    totalDeposit,
+    totalWithdraw,
+    totalDepositBtcValuation: btcPrice > 0 ? Math.round((totalDeposit / btcPrice) * 10000) / 10000 : 0,
     totalWithdrawBtcValuation: 0,
     overallPnl,
     overallPnlPercent,
-    futuresPnl: 0,
+    futuresPnl,
     assetsBalance,
     assetsBalance24HChange,
   };
