@@ -11,14 +11,28 @@ import type {
   DepositWithdrawStats,
   CalendarData,
   AccountType,
+  HistoryOrder,
 } from '../types.js';
 
 // ============ 同步状态管理 ============
 
 const syncState = new Map<number, { state: number; ratio: number }>();
 
-export function getSyncState(apiId: number): { state: number; ratio: number } {
-  return syncState.get(apiId) || { state: 0, ratio: 0 };
+export async function getSyncState(apiId: number): Promise<Record<string, any>> {
+  const { getLatestSyncStatus } = await import('./syncLogService.js');
+  const latest = getLatestSyncStatus(apiId);
+
+  if (!latest) {
+    return { isSyncing: false, lastSyncTime: null, status: 'idle' };
+  }
+
+  return {
+    isSyncing: latest.status === 'running',
+    lastSyncTime: latest.started_at,
+    status: latest.status,
+    recordsSynced: latest.records_synced,
+    errorMessage: latest.error_message,
+  };
 }
 
 function setSyncState(apiId: number, state: number, ratio: number): void {
@@ -632,6 +646,10 @@ export async function syncApiData(apiId: number): Promise<void> {
 
   setSyncState(apiId, 1, 0); // 同步中
 
+  // 创建同步日志
+  const { createSyncLog, updateSyncLog } = await import('./syncLogService.js');
+  const logId = createSyncLog(apiId, 'full');
+
   try {
     const exchange = createExchange(api);
     const balance = await exchange.fetchBalance();
@@ -664,8 +682,10 @@ export async function syncApiData(apiId: number): Promise<void> {
     }
 
     // 计算总资产
+    let recordsSynced = 0;
     for (const [currency, amount] of Object.entries(totalBalances)) {
       if (amount <= 0) continue;
+      recordsSynced++;
       if (nonStablecoins.includes(currency)) {
         totalUsd += (priceMap.get(currency) || 0) * amount;
       } else {
@@ -688,9 +708,25 @@ export async function syncApiData(apiId: number): Promise<void> {
     `).run(apiId, today, totalUsd, Date.now());
 
     setSyncState(apiId, 2, 100); // 同步完成
+
+    // 更新同步日志为成功
+    updateSyncLog(logId, {
+      status: 'success',
+      finished_at: Date.now(),
+      records_synced: recordsSynced,
+    });
+
     console.log(`[DataSync] API ${apiId} synced: total USD = ${totalUsd}`);
   } catch (err: any) {
     setSyncState(apiId, 3, 0); // 同步失败
+
+    // 更新同步日志为失败
+    updateSyncLog(logId, {
+      status: 'failed',
+      finished_at: Date.now(),
+      error_message: err.message,
+    });
+
     throw err;
   }
 }
@@ -715,4 +751,50 @@ export async function syncAllApis(): Promise<{ success: number; failed: number }
 
   console.log(`[DataSync] All APIs synced: ${success} success, ${failed} failed`);
   return { success, failed };
+}
+
+// ============ 历史委托方法 ============
+
+/**
+ * 获取历史委托（已成交）
+ * 通过 ccxt fetchMyTrades 获取历史成交记录
+ */
+export async function getHistoryOrders(
+  apiId: number,
+  params?: { symbol?: string; limit?: number; since?: number; until?: number }
+): Promise<HistoryOrder[]> {
+  const api = getDecryptedApi(apiId);
+  if (!api) throw new Error('API not found');
+
+  const exchange = createExchange(api);
+  if (!exchange) throw new Error('Exchange not supported');
+
+  try {
+    // ccxt 统一接口 fetchMyTrades 获取历史成交
+    const trades = await safeCall(
+      () => exchange.fetchMyTrades({
+        symbol: params?.symbol,
+        limit: params?.limit || 50,
+        since: params?.since,
+        until: params?.until,
+      }),
+      [] as any[]
+    );
+
+    return trades.map((trade: any) => ({
+      id: String(trade.id || ''),
+      symbol: trade.symbol || '',
+      side: trade.side || 'buy',       // buy/sell
+      price: trade.price || 0,
+      amount: trade.amount || 0,
+      cost: trade.cost || 0,
+      fee: trade.fee?.cost || 0,
+      feeCurrency: trade.fee?.currency || '',
+      orderId: String(trade.order || ''),
+      timestamp: trade.timestamp || Date.now(),
+      datetime: trade.datetime || new Date().toISOString(),
+    }));
+  } finally {
+    exchange.close();
+  }
 }

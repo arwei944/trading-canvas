@@ -11,6 +11,7 @@ import type {
   DepositWithdrawStats,
   TrendData,
   CalendarData,
+  HistoryOrder,
 } from '../types';
 
 // API 端点
@@ -113,6 +114,21 @@ export class ExchangeService {
   // 获取日历数据
   async getCalendar(year: number, month: number, type: number = 1): Promise<CalendarData[]> {
     return apiClient.get<CalendarData[]>('/ex/calendar', { year: String(year), month: String(month), type: String(type) });
+  }
+
+  // 获取历史委托
+  async getHistoryOrders(apiId: number, params?: {
+    symbol?: string;
+    limit?: number;
+    since?: number;
+    until?: number;
+  }): Promise<HistoryOrder[]> {
+    const queryParams: Record<string, unknown> = { apiId };
+    if (params?.symbol) queryParams.symbol = params.symbol;
+    if (params?.limit) queryParams.limit = params.limit;
+    if (params?.since) queryParams.since = params.since;
+    if (params?.until) queryParams.until = params.until;
+    return apiClient.get<HistoryOrder[]>('/ex/historyOrders', queryParams);
   }
 
   // 添加交易所 API

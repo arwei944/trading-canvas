@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import * as dataService from '../services/dataSyncService.js';
+import { getSyncLogs } from '../services/syncLogService.js';
 import { success, fail } from '../utils/response.js';
 
 export const dataRouter = Router();
@@ -209,8 +210,44 @@ dataRouter.get('/api/refresh/state', async (req: Request, res: Response) => {
       return;
     }
 
-    const state = dataService.getSyncState(apiId);
+    const state = await dataService.getSyncState(apiId);
     res.json(success({ apiId, ...state }));
+  } catch (err: any) {
+    res.json(fail(err.message));
+  }
+});
+
+// ============ 历史委托接口 ============
+
+// 历史委托
+dataRouter.get('/historyOrders', async (req: Request, res: Response) => {
+  try {
+    const { apiId, symbol, limit, since, until } = req.query;
+    if (!apiId) return res.json(fail('apiId is required'));
+
+    const orders = await dataService.getHistoryOrders(Number(apiId), {
+      symbol: symbol as string | undefined,
+      limit: limit ? Number(limit) : undefined,
+      since: since ? Number(since) : undefined,
+      until: until ? Number(until) : undefined,
+    });
+    res.json(success(orders));
+  } catch (err: any) {
+    res.json(fail(err.message));
+  }
+});
+
+// ============ 同步日志接口 ============
+
+// 同步日志
+dataRouter.get('/syncLogs', async (req: Request, res: Response) => {
+  try {
+    const { apiId, limit } = req.query;
+    const logs = getSyncLogs(
+      apiId ? Number(apiId) : undefined,
+      limit ? Number(limit) : 20
+    );
+    res.json(success(logs));
   } catch (err: any) {
     res.json(fail(err.message));
   }

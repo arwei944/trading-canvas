@@ -93,3 +93,17 @@ export interface CalendarData {
   pnl: number;
   count: number;
 }
+
+export interface HistoryOrder {
+  id: string;
+  symbol: string;
+  side: string;
+  price: number;
+  amount: number;
+  cost: number;
+  fee: number;
+  feeCurrency: string;
+  orderId: string;
+  timestamp: number;
+  datetime: string;
+}

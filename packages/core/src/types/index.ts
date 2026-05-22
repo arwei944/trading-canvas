@@ -192,3 +192,18 @@ export interface ApiResponse<T> {
   data: T;
   success: boolean;
 }
+
+// ============ 历史委托类型 ============
+export interface HistoryOrder {
+  id: string;
+  symbol: string;
+  side: string;
+  price: number;
+  amount: number;
+  cost: number;
+  fee: number;
+  feeCurrency: string;
+  orderId: string;
+  timestamp: number;
+  datetime: string;
+}

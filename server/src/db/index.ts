@@ -88,6 +88,18 @@ function createTables(db: Database.Database): void {
       key   TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS sync_logs (
+      id              INTEGER PRIMARY KEY AUTOINCREMENT,
+      api_id          INTEGER NOT NULL,
+      sync_type       TEXT NOT NULL DEFAULT 'full',
+      status          TEXT NOT NULL DEFAULT 'pending',
+      started_at      INTEGER NOT NULL,
+      finished_at     INTEGER,
+      records_synced  INTEGER DEFAULT 0,
+      error_message   TEXT,
+      FOREIGN KEY (api_id) REFERENCES exchange_apis(id)
+    );
   `);
 
   // 初始数据
