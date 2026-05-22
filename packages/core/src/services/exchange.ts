@@ -32,17 +32,17 @@ const ENDPOINTS = {
 // 交易所服务
 export class ExchangeService {
   // 获取交易所列表
-  static async getExchanges(): Promise<ExchangeInfo[]> {
+  async getExchanges(): Promise<ExchangeInfo[]> {
     return apiClient.get<ExchangeInfo[]>(ENDPOINTS.EX_LIST);
   }
 
   // 检查 API 权限
-  static async checkPermissions(apiId: number): Promise<boolean> {
+  async checkPermissions(apiId: number): Promise<boolean> {
     return apiClient.get<boolean>(ENDPOINTS.CHECK_PERMISSIONS, { apiId: String(apiId) });
   }
 
   // 获取同步状态
-  static async getRefreshState(apiId: number): Promise<{ state: number; ratio: number }> {
+  async getRefreshState(apiId: number): Promise<{ state: number; ratio: number }> {
     return apiClient.get<{ apiId: number; state: number; ratio: number }>(
       ENDPOINTS.REFRESH_STATE,
       { apiId: String(apiId) }
@@ -50,12 +50,12 @@ export class ExchangeService {
   }
 
   // 获取 BTC/ETH 价格
-  static async getBTCETHPrice(): Promise<{ btcPrice: number; ethPrice: number }> {
+  async getBTCETHPrice(): Promise<{ btcPrice: number; ethPrice: number }> {
     return apiClient.get<{ btcPrice: number; ethPrice: number }>(ENDPOINTS.PRICE_BTC_ETH);
   }
 
   // 获取资产余额
-  static async getAssets(apiId: number, page = 1, pageSize = 10): Promise<AssetResponse> {
+  async getAssets(apiId: number, page = 1, pageSize = 10): Promise<AssetResponse> {
     return apiClient.get<AssetResponse>(
       ENDPOINTS.ASSET_BALANCE_V2,
       { apiId: String(apiId), pageSize: String(pageSize), pageNum: String(page) }
@@ -63,7 +63,7 @@ export class ExchangeService {
   }
 
   // 获取资产分布
-  static async getAssetRatio(apiId: number): Promise<{ ALL: AssetBalance[] }> {
+  async getAssetRatio(apiId: number): Promise<{ ALL: AssetBalance[] }> {
     return apiClient.get<{ ALL: AssetBalance[] }>(ENDPOINTS.ASSET_BALANCE_RATIO, { apiId: String(apiId) });
   }
 
@@ -80,22 +80,22 @@ export class ExchangeService {
   }
 
   // 获取合约持仓
-  static async getPositions(apiId: number): Promise<PositionData[]> {
+  async getPositions(apiId: number): Promise<PositionData[]> {
     return apiClient.get<PositionData[]>(ENDPOINTS.CONTRACT_POSITION, { apiId: String(apiId) }) || [];
   }
 
   // 获取当前委托
-  static async getOrders(apiId: number): Promise<OrderData[]> {
+  async getOrders(apiId: number): Promise<OrderData[]> {
     return apiClient.get<OrderData[]>(ENDPOINTS.ENTRUST_ORDERS, { apiId: String(apiId) }) || [];
   }
 
   // 获取充提统计
-  static async getDepositWithdrawStats(apiId: number): Promise<DepositWithdrawStats> {
+  async getDepositWithdrawStats(apiId: number): Promise<DepositWithdrawStats> {
     return apiClient.get<DepositWithdrawStats>(ENDPOINTS.DEPOSIT_WITHDRAW_STA, { apiId: String(apiId) });
   }
 
   // 获取分析摘要
-  static async getAnalysisSummary(startDate: number, endDate: number): Promise<Record<string, unknown>> {
+  async getAnalysisSummary(startDate: number, endDate: number): Promise<Record<string, unknown>> {
     return apiClient.get<Record<string, unknown>>(
       ENDPOINTS.ANALYSIS_SUMMARY,
       { startDate: String(startDate), endDate: String(endDate) }
@@ -103,7 +103,7 @@ export class ExchangeService {
   }
 
   // 获取按日期的资产变动
-  static async getAssetChangeByDate(beginTime: number, endTime: number): Promise<Record<string, number>> {
+  async getAssetChangeByDate(beginTime: number, endTime: number): Promise<Record<string, number>> {
     return apiClient.get<Record<string, number>>(
       ENDPOINTS.ASSET_CHANGE_DATE,
       { beginTime: String(beginTime), endTime: String(endTime) }
@@ -111,12 +111,12 @@ export class ExchangeService {
   }
 
   // 获取日历数据
-  static async getCalendar(year: number, month: number, type: number = 1): Promise<CalendarData[]> {
+  async getCalendar(year: number, month: number, type: number = 1): Promise<CalendarData[]> {
     return apiClient.get<CalendarData[]>('/ex/calendar', { year: String(year), month: String(month), type: String(type) });
   }
 
   // 添加交易所 API
-  static async addExchangeApi(data: {
+  async addExchangeApi(data: {
     exchange_id: number;
     name: string;
     api_key: string;
@@ -127,12 +127,12 @@ export class ExchangeService {
   }
 
   // 删除交易所 API
-  static async removeExchangeApi(apiId: number): Promise<void> {
+  async removeExchangeApi(apiId: number): Promise<void> {
     await apiClient.delete<void>('/ex/api/delete', { apiId } as Record<string, unknown>);
   }
 
   // 更新交易所 API
-  static async updateExchangeApi(data: {
+  async updateExchangeApi(data: {
     apiId: number;
     name?: string;
     api_key?: string;
@@ -144,7 +144,7 @@ export class ExchangeService {
   }
 
   // 切换星标
-  static async toggleStarApi(apiId: number): Promise<void> {
+  async toggleStarApi(apiId: number): Promise<void> {
     await apiClient.put<void>('/ex/api/star', { apiId } as Record<string, unknown>);
   }
 }

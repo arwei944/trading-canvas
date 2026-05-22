@@ -1,10 +1,8 @@
 // packages/hooks/src/useAssets.ts
 
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { exchangeService } from '@trading.canvas/core';
 import type { AssetBalance, DepositWithdrawStats, AccountType } from '@trading.canvas/core';
-
-const POLL_INTERVAL = 5000; // 5秒轮询
 
 export function useAssets(
   apiId: number | null,
@@ -13,48 +11,25 @@ export function useAssets(
   pageSize = 10,
   enabled = true
 ) {
-  const [assets, setAssets] = useState<AssetBalance[]>([]);
-  const [stats, setStats] = useState<DepositWithdrawStats | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [total, setTotal] = useState(0);
+  const assetsQuery = useQuery({
+    queryKey: ['assets', apiId, accountType, page, pageSize],
+    queryFn: () => exchangeService.getAssets(apiId!, page, pageSize),
+    enabled: enabled && !!apiId,
+    refetchInterval: 10000, // 10秒自动刷新
+  });
 
-  const fetchAssets = useCallback(async () => {
-    if (!apiId) return;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const [assetsData, statsData] = await Promise.all([
-        exchangeService.getAssets(apiId, page, pageSize),
-        exchangeService.getDepositWithdrawStats(apiId),
-      ]);
+  const statsQuery = useQuery({
+    queryKey: ['depositStats', apiId],
+    queryFn: () => exchangeService.getDepositWithdrawStats(apiId!),
+    enabled: enabled && !!apiId,
+    refetchInterval: 30000, // 30秒刷新统计
+  });
 
-      setAssets(assetsData[accountType]?.list || []);
-      setTotal(assetsData[accountType]?.total || 0);
-      setStats(statsData);
-    } catch (err: any) {
-      setError(err.response?.data?.msg || '获取资产失败');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [apiId, accountType, page, pageSize]);
-
-  const refetch = useCallback(async () => {
-    await fetchAssets();
-  }, [fetchAssets]);
-
-  // 初始加载和轮询
-  useEffect(() => {
-    if (!enabled || !apiId) return;
-
-    setIsLoading(true);
-    fetchAssets().finally(() => setIsLoading(false));
-
-    const interval = setInterval(fetchAssets, POLL_INTERVAL);
-    return () => clearInterval(interval);
-  }, [enabled, apiId, fetchAssets]);
+  const assets = assetsQuery.data?.[accountType]?.list || [];
+  const total = assetsQuery.data?.[accountType]?.total || 0;
+  const stats = statsQuery.data || null;
+  const isLoading = assetsQuery.isLoading || statsQuery.isLoading;
+  const error = assetsQuery.error?.message || statsQuery.error?.message || null;
 
   return {
     assets,
@@ -62,23 +37,21 @@ export function useAssets(
     total,
     isLoading,
     error,
-    refetch,
+    refetch: () => { assetsQuery.refetch(); statsQuery.refetch(); },
   };
 }
 
 // 获取资产分布（饼图用）
 export function useAssetRatio(apiId: number | null, enabled = true) {
-  const [assets, setAssets] = useState<AssetBalance[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { data = [], isLoading } = useQuery({
+    queryKey: ['assetRatio', apiId],
+    queryFn: async () => {
+      const result = await exchangeService.getAssetRatio(apiId!);
+      return result.ALL || [];
+    },
+    enabled: enabled && !!apiId,
+    refetchInterval: 15000,
+  });
 
-  useEffect(() => {
-    if (!enabled || !apiId) return;
-
-    setIsLoading(true);
-    exchangeService.getAssetRatio(apiId)
-      .then(setAssets)
-      .finally(() => setIsLoading(false));
-  }, [enabled, apiId]);
-
-  return { assets, isLoading };
+  return { assets: data, isLoading };
 }
