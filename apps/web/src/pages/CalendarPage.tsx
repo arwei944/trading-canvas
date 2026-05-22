@@ -224,9 +224,13 @@ export function CalendarPage({ year, month }: CalendarPageProps) {
                   padding: '4px 8px',
                 }}
               >
-                {[2023, 2024, 2025, 2026].map(y => (
-                  <option key={y} value={y}>{y}年</option>
-                ))}
+                {(() => {
+                  const currentYear = new Date().getFullYear();
+                  const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
+                  return years.map(y => (
+                    <option key={y} value={y}>{y}年</option>
+                  ));
+                })()}
               </select>
               <select
                 value={selectedMonth}

@@ -5,3 +5,4 @@ export { AssetTable } from './AssetTable';
 export { PositionTable } from './PositionTable';
 export { OrderTable } from './OrderTable';
 export { AllocationPie } from './AllocationPie';
+export { ErrorBoundary } from './ErrorBoundary';

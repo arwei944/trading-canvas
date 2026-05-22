@@ -13,7 +13,7 @@ import {
   Typography,
   Chip,
 } from '@mui/material';
-import type { AssetBalance } from '@trading-canvas/core';
+import type { AssetBalance } from '@trading.canvas/core';
 
 interface AssetTableProps {
   assets: AssetBalance[];

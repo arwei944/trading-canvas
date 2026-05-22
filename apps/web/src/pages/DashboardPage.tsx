@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useExchangeStore } from '@trading.canvas/core';
-import { usePrice, useAssets, usePositions, useOrders } from '@trading.canvas/hooks';
+import { useAssets, usePositions, useOrders } from '@trading.canvas/hooks';
 import { SummaryCard } from '../components/SummaryCard';
 import { AssetTable } from '../components/AssetTable';
 import { TrendChart } from '../components/TrendChart';
@@ -39,13 +39,6 @@ export function DashboardPage() {
   useEffect(() => {
     fetchExchanges();
   }, [fetchExchanges]);
-
-  const formatCurrency = (value: number, prefix = '$') => {
-    if (Math.abs(value) >= 10000) {
-      return `${prefix}${(value / 10000).toFixed(2)}万`;
-    }
-    return `${prefix}${value.toFixed(2)}`;
-  };
 
   return (
     <Box>

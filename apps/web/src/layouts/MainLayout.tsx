@@ -21,7 +21,6 @@ import {
   LabelOutlined,
   EditNoteOutlined,
   SettingsOutlined,
-  LogoutOutlined,
   Add,
 } from '@mui/icons-material';
 
@@ -127,28 +126,6 @@ export function MainLayout() {
                 fontSize: '0.875rem',
                 fontWeight: 500,
                 color: '#007aff',
-              }}
-            />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton
-            onClick={() => navigate('/login')}
-            sx={{
-              borderRadius: 2,
-              py: 1,
-              px: 1.5,
-              minHeight: 40,
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: 32, color: '#86868b' }}>
-              <LogoutOutlined sx={{ fontSize: 20 }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary="退出" 
-              primaryTypographyProps={{
-                fontSize: '0.875rem',
-                fontWeight: 500,
               }}
             />
           </ListItemButton>

@@ -1,8 +1,9 @@
 // packages/core/src/services/exchange.ts
 
-import { apiClient, ApiResponse } from './api';
+import { apiClient } from './api';
 import type {
   ExchangeInfo,
+  ExchangeAPI,
   AssetResponse,
   AssetBalance,
   PositionData,
@@ -10,7 +11,6 @@ import type {
   DepositWithdrawStats,
   TrendData,
   CalendarData,
-  ApiResponse as ExchangeApiResponse
 } from '../types';
 
 // API 端点
@@ -33,68 +33,47 @@ const ENDPOINTS = {
 export class ExchangeService {
   // 获取交易所列表
   static async getExchanges(): Promise<ExchangeInfo[]> {
-    const response = await apiClient.get<ApiResponse<ExchangeInfo[]>>(ENDPOINTS.EX_LIST);
-    return response.data;
+    return apiClient.get<ExchangeInfo[]>(ENDPOINTS.EX_LIST);
   }
 
   // 检查 API 权限
   static async checkPermissions(apiId: number): Promise<boolean> {
-    const response = await apiClient.get<ApiResponse<boolean>>(
-      ENDPOINTS.CHECK_PERMISSIONS,
-      { apiId: String(apiId) }
-    );
-    return response.data;
+    return apiClient.get<boolean>(ENDPOINTS.CHECK_PERMISSIONS, { apiId: String(apiId) });
   }
 
   // 获取同步状态
   static async getRefreshState(apiId: number): Promise<{ state: number; ratio: number }> {
-    const response = await apiClient.get<ApiResponse<{ apiId: number; state: number; ratio: number }>>(
+    return apiClient.get<{ apiId: number; state: number; ratio: number }>(
       ENDPOINTS.REFRESH_STATE,
       { apiId: String(apiId) }
     );
-    return { state: response.data.state, ratio: response.data.ratio };
   }
 
   // 获取 BTC/ETH 价格
   static async getBTCETHPrice(): Promise<{ btcPrice: number; ethPrice: number }> {
-    const response = await apiClient.get<{ btcPrice: number; ethPrice: number }>(
-      ENDPOINTS.PRICE_BTC_ETH
-    );
-    return response;
+    return apiClient.get<{ btcPrice: number; ethPrice: number }>(ENDPOINTS.PRICE_BTC_ETH);
   }
 
   // 获取资产余额
-  static async getAssets(
-    apiId: number,
-    page = 1,
-    pageSize = 10
-  ): Promise<AssetResponse> {
-    const response = await apiClient.get<ApiResponse<AssetResponse>>(
+  static async getAssets(apiId: number, page = 1, pageSize = 10): Promise<AssetResponse> {
+    return apiClient.get<AssetResponse>(
       ENDPOINTS.ASSET_BALANCE_V2,
       { apiId: String(apiId), pageSize: String(pageSize), pageNum: String(page) }
     );
-    return response.data;
   }
 
   // 获取资产分布
-  static async getAssetRatio(apiId: number): Promise<AssetBalance[]> {
-    const response = await apiClient.get<ApiResponse<{ ALL: AssetBalance[] }>>(
-      ENDPOINTS.ASSET_BALANCE_RATIO,
-      { apiId: String(apiId) }
-    );
-    return response.data.ALL;
+  static async getAssetRatio(apiId: number): Promise<{ ALL: AssetBalance[] }> {
+    return apiClient.get<{ ALL: AssetBalance[] }>(ENDPOINTS.ASSET_BALANCE_RATIO, { apiId: String(apiId) });
   }
 
   // 获取趋势图数据
-  static async getTrendChart(
-    apiId: number,
-    interval: '24h' | '7d' | '30d' | '90d'
-  ): Promise<TrendData[]> {
-    const response = await apiClient.get<ApiResponse<Array<{ date: number; asset: number }>>>(
+  async getTrendChart(apiId: number, interval: '24h' | '7d' | '30d' | '90d'): Promise<TrendData[]> {
+    const data = await apiClient.get<Array<{ date: number; asset: number }>>(
       ENDPOINTS.ASSET_TREND_CHART,
       { apiId: String(apiId), interval }
     );
-    return response.data.map(item => ({
+    return data.map(item => ({
       date: new Date(item.date).toISOString().split('T')[0],
       value: item.asset,
     }));
@@ -102,88 +81,70 @@ export class ExchangeService {
 
   // 获取合约持仓
   static async getPositions(apiId: number): Promise<PositionData[]> {
-    const response = await apiClient.get<ApiResponse<PositionData[]>>(
-      ENDPOINTS.CONTRACT_POSITION,
-      { apiId: String(apiId) }
-    );
-    return response.data || [];
+    return apiClient.get<PositionData[]>(ENDPOINTS.CONTRACT_POSITION, { apiId: String(apiId) }) || [];
   }
 
   // 获取当前委托
   static async getOrders(apiId: number): Promise<OrderData[]> {
-    const response = await apiClient.get<ApiResponse<OrderData[]>>(
-      ENDPOINTS.ENTRUST_ORDERS,
-      { apiId: String(apiId) }
-    );
-    return response.data || [];
+    return apiClient.get<OrderData[]>(ENDPOINTS.ENTRUST_ORDERS, { apiId: String(apiId) }) || [];
   }
 
   // 获取充提统计
   static async getDepositWithdrawStats(apiId: number): Promise<DepositWithdrawStats> {
-    const response = await apiClient.get<ApiResponse<DepositWithdrawStats>>(
-      ENDPOINTS.DEPOSIT_WITHDRAW_STA,
-      { apiId: String(apiId) }
-    );
-    return response.data;
+    return apiClient.get<DepositWithdrawStats>(ENDPOINTS.DEPOSIT_WITHDRAW_STA, { apiId: String(apiId) });
   }
 
   // 获取分析摘要
-  static async getAnalysisSummary(
-    startDate: number,
-    endDate: number
-  ): Promise<Record<string, unknown>> {
-    const response = await apiClient.get<ApiResponse<Record<string, unknown>>>(
+  static async getAnalysisSummary(startDate: number, endDate: number): Promise<Record<string, unknown>> {
+    return apiClient.get<Record<string, unknown>>(
       ENDPOINTS.ANALYSIS_SUMMARY,
       { startDate: String(startDate), endDate: String(endDate) }
     );
-    return response.data;
   }
 
   // 获取按日期的资产变动
-  static async getAssetChangeByDate(
-    beginTime: number,
-    endTime: number
-  ): Promise<Record<string, number>> {
-    const response = await apiClient.get<ApiResponse<Record<string, number>>>(
+  static async getAssetChangeByDate(beginTime: number, endTime: number): Promise<Record<string, number>> {
+    return apiClient.get<Record<string, number>>(
       ENDPOINTS.ASSET_CHANGE_DATE,
       { beginTime: String(beginTime), endTime: String(endTime) }
     );
-    return response.data;
   }
 
   // 获取日历数据
-  static async getCalendar(
-    year: number,
-    month: number,
-    type: number = 1
-  ): Promise<CalendarData[]> {
-    // 模拟数据，实际应调用API
-    const daysInMonth = new Date(year, month, 0).getDate();
-    const result: CalendarData[] = [];
-    
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      // 随机生成盈亏数据
-      const pnl = (Math.random() - 0.5) * 1000;
-      result.push({
-        date,
-        pnl,
-        count: Math.floor(Math.random() * 10),
-      });
-    }
-    
-    return result;
+  static async getCalendar(year: number, month: number, type: number = 1): Promise<CalendarData[]> {
+    return apiClient.get<CalendarData[]>('/ex/calendar', { year: String(year), month: String(month), type: String(type) });
+  }
+
+  // 添加交易所 API
+  static async addExchangeApi(data: {
+    exchange_id: number;
+    name: string;
+    api_key: string;
+    secret_key: string;
+    passphrase?: string;
+  }): Promise<ExchangeAPI> {
+    return apiClient.post<ExchangeAPI>('/ex/api/add', data as Record<string, unknown>);
+  }
+
+  // 删除交易所 API
+  static async removeExchangeApi(apiId: number): Promise<void> {
+    await apiClient.delete<void>('/ex/api/delete', { apiId } as Record<string, unknown>);
+  }
+
+  // 切换星标
+  static async toggleStarApi(apiId: number): Promise<void> {
+    await apiClient.put<void>('/ex/api/star', { apiId } as Record<string, unknown>);
   }
 }
 
 // 导出实例
 export const exchangeService = new ExchangeService();
 
-// 导出独立函数
-export const getExchanges = ExchangeService.getExchanges.bind(ExchangeService);
-export const getAssets = ExchangeService.getAssets.bind(ExchangeService);
-export const getPositions = ExchangeService.getPositions.bind(ExchangeService);
-export const getOrders = ExchangeService.getOrders.bind(ExchangeService);
-export const getTrendChart = ExchangeService.getTrendChart.bind(ExchangeService);
-export const getDepositWithdrawStats = ExchangeService.getDepositWithdrawStats.bind(ExchangeService);
-export const getCalendar = ExchangeService.getCalendar.bind(ExchangeService);
+// 导出独立函数（通过实例方法绑定）
+export const getExchanges = (...args: Parameters<ExchangeService['getExchanges']>) => exchangeService.getExchanges(...args);
+export const getAssets = (...args: Parameters<ExchangeService['getAssets']>) => exchangeService.getAssets(...args);
+export const getPositions = (...args: Parameters<ExchangeService['getPositions']>) => exchangeService.getPositions(...args);
+export const getOrders = (...args: Parameters<ExchangeService['getOrders']>) => exchangeService.getOrders(...args);
+export const getTrendChart = (...args: Parameters<ExchangeService['getTrendChart']>) => exchangeService.getTrendChart(...args);
+export const getDepositWithdrawStats = (...args: Parameters<ExchangeService['getDepositWithdrawStats']>) => exchangeService.getDepositWithdrawStats(...args);
+export const getCalendar = (...args: Parameters<ExchangeService['getCalendar']>) => exchangeService.getCalendar(...args);

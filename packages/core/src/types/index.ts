@@ -48,19 +48,6 @@ export const exchanges: Record<number, { id: number; name: string }> = {
   8: { id: 8, name: 'Huobi' },
 };
 
-// ============ 用户类型 ============
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  password?: string;
-  status: string;
-  from: string | null;
-  lang: string | null;
-  createTime: number;
-  updateTime: number | null;
-}
-
 // ============ 资产类型 ============
 export type AccountType = 'ALL' | 'SPOT' | 'MARGIN' | 'LENDING' | 'FUTURES' | 'FUNDING' | 'EARN';
 

@@ -12,18 +12,6 @@
     "settings": "设置",
     "addApi": "添加API"
   },
-  "auth": {
-    "login": "登录",
-    "logout": "退出登录",
-    "register": "注册",
-    "email": "邮箱",
-    "password": "密码",
-    "forgotPassword": "忘记密码",
-    "loginButton": "登录",
-    "registerButton": "注册",
-    "noAccount": "还没有账号？",
-    "hasAccount": "已有账号？"
-  },
   "dashboard": {
     "title": "账户总览",
     "totalBalance": "总资产",

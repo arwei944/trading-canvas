@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -43,11 +43,16 @@ const exchangeOptions = Object.values(exchanges).map(e => ({
  * API管理页面
  */
 export function ApiManagerPage() {
-  const { apis, addApi, removeApi, toggleStar } = useExchangeStore();
+  const { exchanges, apis, addApi, removeApi, toggleStar, fetchExchanges } = useExchangeStore();
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editApi, setEditApi] = useState<typeof apis[0] | null>(null);
   const [showKey, setShowKey] = useState<Record<number, boolean>>({});
+
+  // 页面加载时获取 API 列表
+  useEffect(() => {
+    fetchExchanges();
+  }, [fetchExchanges]);
 
   // 表单状态
   const [formData, setFormData] = useState({
@@ -62,7 +67,7 @@ export function ApiManagerPage() {
     if (api) {
       setEditApi(api);
       setFormData({
-        exchangeId: api.exchangeId,
+        exchangeId: api.exchange_id,
         name: api.name,
         apiKey: '',
         secretKey: '',
@@ -96,7 +101,7 @@ export function ApiManagerPage() {
       name: formData.name,
       apiKey: formData.apiKey,
       secretKey: formData.secretKey,
-      passphrase: formData.passphrase,
+      passphrase: formData.passphrase || undefined,
     });
 
     handleCloseDialog();
@@ -154,7 +159,7 @@ export function ApiManagerPage() {
                           {api.name}
                         </Typography>
                         <Chip
-                          label={getExchangeName(api.exchangeId)}
+                          label={getExchangeName(api.exchange_id)}
                           size="small"
                           variant="outlined"
                         />
@@ -173,7 +178,7 @@ export function ApiManagerPage() {
                           API Key: {api.apiKey ? `****${api.apiKey.slice(-4)}` : '未设置'}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          创建时间: {new Date(api.createTime).toLocaleString('zh-CN')}
+                          创建时间: {new Date(api.created_at).toLocaleString('zh-CN')}
                         </Typography>
                       </Box>
                     }
@@ -256,7 +261,7 @@ export function ApiManagerPage() {
                 placeholder="请输入Secret Key"
               />
             </Grid>
-            {formData.exchangeId === 2 && ( // OKX需要passphrase
+            {exchanges[formData.exchangeId]?.name === 'OKX' && ( // OKX需要passphrase
               <Grid item xs={12}>
                 <TextField
                   fullWidth

@@ -1,15 +1,17 @@
 {
   "name": "trading-canvas",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "基于 BlockCanvas 的加密货币交易日志前端",
+  "description": "\u57fa\u4e8e BlockCanvas \u7684\u52a0\u5bc6\u8d27\u5e01\u4ea4\u6613\u65e5\u5fd7\u524d\u7aef",
   "scripts": {
     "dev": "pnpm --filter web dev",
     "build": "pnpm --filter web build",
-    "build:packages": "pnpm --filter '@trading-canvas/*' build",
+    "build:packages": "pnpm --filter '@trading.canvas/*' build",
     "test": "pnpm --filter web test",
     "lint": "pnpm --filter web lint",
-    "clean": "rm -rf node_modules packages/*/dist apps/*/dist"
+    "clean": "rm -rf node_modules packages/*/dist apps/*/dist",
+    "server:dev": "pnpm --filter @trading.canvas/server dev",
+    "server:build": "pnpm --filter @trading.canvas/server build"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
@@ -22,5 +24,12 @@
   "engines": {
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "better-sqlite3",
+      "ccxt"
+    ]
   }
 }

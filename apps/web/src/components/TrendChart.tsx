@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import ReactECharts from 'echarts-for-react';
-import { Box, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { Box, ToggleButtonGroup, ToggleButton, Typography, CircularProgress } from '@mui/material';
 import { exchangeService } from '@trading.canvas/core';
 import type { TrendData } from '@trading.canvas/core';
 
@@ -17,6 +17,8 @@ type Interval = '24h' | '7d' | '30d' | '90d';
 export function TrendChart({ apiId, height = 300, data: propData }: TrendChartProps) {
   const [interval, setInterval] = useState<Interval>('24h');
   const [data, setData] = useState<TrendData[]>(propData || []);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (propData) {
@@ -25,7 +27,13 @@ export function TrendChart({ apiId, height = 300, data: propData }: TrendChartPr
     }
     if (!apiId) return;
 
-    exchangeService.getTrendChart(apiId, interval).then(setData);
+    setIsLoading(true);
+    setError(null);
+    exchangeService
+      .getTrendChart(apiId, interval)
+      .then(setData)
+      .catch((err: any) => setError(err.message || '获取趋势数据失败'))
+      .finally(() => setIsLoading(false));
   }, [apiId, interval, propData]);
 
   const option = {
@@ -107,7 +115,17 @@ export function TrendChart({ apiId, height = 300, data: propData }: TrendChartPr
           </ToggleButtonGroup>
         </Box>
       )}
-      <ReactECharts option={option} style={{ height }} />
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height }}>
+          <CircularProgress />
+        </Box>
+      ) : error ? (
+        <Typography color="error" sx={{ textAlign: 'center', py: 4 }}>
+          {error}
+        </Typography>
+      ) : (
+        <ReactECharts option={option} style={{ height }} />
+      )}
     </Box>
   );
 }

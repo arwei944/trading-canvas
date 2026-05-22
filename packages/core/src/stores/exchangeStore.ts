@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { ExchangeService } from '../services/exchange';
-import type { ExchangeInfo, ExchangeId, ExchangeAPI } from '../types';
+import type { ExchangeInfo, ExchangeAPI } from '../types';
 
 interface ExchangeState {
   exchanges: ExchangeInfo[];
@@ -16,7 +16,7 @@ interface ExchangeState {
   selectApi: (apiId: number | null) => void;
   addApi: (api: Partial<ExchangeAPI>) => Promise<void>;
   removeApi: (apiId: number) => Promise<void>;
-  toggleStar: (apiId: number) => void;
+  toggleStar: (apiId: number) => Promise<void>;
   clearError: () => void;
 }
 
@@ -50,43 +50,44 @@ export const useExchangeStore = create<ExchangeState>((set, get) => ({
   selectApi: (apiId) => set({ selectedApiId: apiId }),
 
   addApi: async (api) => {
-    // 模拟添加API
-    const newApi: ExchangeAPI = {
-      id: Date.now(),
-      userId: 1,
-      exchangeId: (api.exchangeId || 1) as ExchangeId,
-      name: api.name || 'New API',
-      apiKey: api.apiKey || '',
-      secretKey: api.secretKey || '',
-      passphrase: api.passphrase,
-      type: 1,
-      status: 1,
-      star: 0,
-      createTime: Date.now(),
-      updateTime: null,
-      expire: 1,
-      refreshRatio: null,
-      gateIpList: null,
-    };
-    
-    set((state) => ({
-      apis: [...state.apis, newApi],
-    }));
+    try {
+      await ExchangeService.addExchangeApi({
+        exchange_id: api.exchangeId as number,
+        name: api.name || '',
+        api_key: api.apiKey || '',
+        secret_key: api.secretKey || '',
+        passphrase: api.passphrase,
+      });
+      // 重新获取列表
+      await get().fetchExchanges();
+    } catch (error: any) {
+      set({ error: error.message || '添加API失败' });
+    }
   },
 
   removeApi: async (apiId) => {
-    set((state) => ({
-      apis: state.apis.filter(api => api.id !== apiId),
-      selectedApiId: state.selectedApiId === apiId ? null : state.selectedApiId,
-    }));
+    try {
+      await ExchangeService.removeExchangeApi(apiId);
+      set((state) => ({
+        apis: state.apis.filter(api => api.id !== apiId),
+        selectedApiId: state.selectedApiId === apiId ? null : state.selectedApiId,
+      }));
+    } catch (error: any) {
+      set({ error: error.message || '删除API失败' });
+    }
   },
 
-  toggleStar: (apiId) => {
-    set((state) => ({
-      apis: state.apis.map(api =>
-        api.id === apiId ? { ...api, star: api.star === 1 ? 0 : 1 } : api
-      ),
-    }));
+  toggleStar: async (apiId) => {
+    try {
+      await ExchangeService.toggleStarApi(apiId);
+      set((state) => ({
+        apis: state.apis.map(api =>
+          api.id === apiId ? { ...api, star: api.star === 1 ? 0 : 1 } : api
+        ),
+      }));
+    } catch (error: any) {
+      set({ error: error.message || '操作失败' });
+    }
   },
 
   clearError: () => set({ error: null }),
