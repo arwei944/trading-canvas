@@ -1,6 +1,6 @@
 {
   "name": "trading-canvas",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "基于 BlockCanvas 的加密货币交易日志前端",
   "scripts": {

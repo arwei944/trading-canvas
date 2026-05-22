@@ -106,5 +106,37 @@
 - Note 类型新增 `tags` 可选字段（关联标签数组）
 - getDepositWithdrawStats 改为 async 函数
 
+## [0.4.0] - 2026-05-22
+
+### 新增
+
+**架构重构**
+- React Query (TanStack Query) 替代所有 setInterval 轮询（6 个 hooks）
+- QueryClientProvider 全局配置（staleTime: 10s, retry: 1, refetchOnWindowFocus: false）
+- 5 个骨架屏组件（Card/Table/Chart/Dashboard/List Skeleton）
+- 7 个单元测试（crypto 加密/解密、response helpers、store 初始状态、apiClient 配置）
+- vitest 测试框架配置
+
+**国际化**
+- react-i18next 完整接入，中/英文切换
+- SettingsPage 语言切换下拉框
+- 7 个页面 + MainLayout 全部使用 t() 调用
+- 完整的 zh.json 和 en.json 翻译文件
+
+**文档**
+- README.md（功能/技术栈/项目结构/快速开始/支持交易所）
+
+### 变更
+
+- ExchangeService 全部 16 个方法统一为实例方法（移除 static）
+- ExchangeAPI/Note/TradeTag 类型统一蛇形命名（与后端一致）
+- 前端页面 CircularProgress 替换为骨架屏组件
+- 删除未使用的导入，统一 import 顺序
+
+### 移除
+
+- AccountDetailPage（与 Dashboard 功能重叠的冗余页面）
+
+[0.3.0]: https://github.com/arwei944/trading-canvas/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/arwei944/trading-canvas/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/arwei944/trading-canvas/releases/tag/v0.1.0
