@@ -1,6 +1,6 @@
 {
   "name": "trading-canvas",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "\u57fa\u4e8e BlockCanvas \u7684\u52a0\u5bc6\u8d27\u5e01\u4ea4\u6613\u65e5\u5fd7\u524d\u7aef",
   "scripts": {

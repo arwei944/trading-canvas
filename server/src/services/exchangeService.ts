@@ -68,6 +68,56 @@ export function deleteExchangeApi(apiId: number): boolean {
   return result.changes > 0;
 }
 
+export function updateExchangeApi(
+  apiId: number,
+  data: { name?: string; api_key?: string; secret_key?: string; passphrase?: string }
+): ExchangeApi | null {
+  const db = getDb();
+  const existing = db.prepare('SELECT * FROM exchange_apis WHERE id = ?').get(apiId) as any;
+  if (!existing) return null;
+
+  const updates: string[] = [];
+  const values: any[] = [];
+
+  if (data.name !== undefined) {
+    updates.push('name = ?');
+    values.push(data.name);
+  }
+  if (data.api_key !== undefined) {
+    updates.push('api_key = ?');
+    values.push(encrypt(data.api_key));
+  }
+  if (data.secret_key !== undefined) {
+    updates.push('secret_key = ?');
+    values.push(encrypt(data.secret_key));
+  }
+  if (data.passphrase !== undefined) {
+    updates.push('passphrase = ?');
+    values.push(data.passphrase ? encrypt(data.passphrase) : null);
+  }
+
+  if (updates.length === 0) return null;
+
+  updates.push('updated_at = ?');
+  values.push(Date.now());
+  values.push(apiId);
+
+  db.prepare(`UPDATE exchange_apis SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+
+  return {
+    id: existing.id,
+    exchange_id: existing.exchange_id,
+    name: data.name || existing.name,
+    api_key: '',
+    secret_key: '',
+    passphrase: undefined,
+    star: existing.star,
+    status: existing.status,
+    created_at: existing.created_at,
+    updated_at: Date.now(),
+  };
+}
+
 export function toggleStar(apiId: number): void {
   const db = getDb();
   db.prepare('UPDATE exchange_apis SET star = CASE WHEN star = 1 THEN 0 ELSE 1 END WHERE id = ?').run(apiId);

@@ -72,5 +72,39 @@
 - Zustand 状态管理
 - React Query 集成（未使用）
 
+## [0.3.0] - 2026-05-22
+
+### 新增
+
+**后端**
+- 标签 CRUD 路由（4 个端点：列表/添加/更新/删除，含笔记计数）
+- 笔记 CRUD 路由（5 个端点：列表/详情/添加/更新/删除，含标签关联）
+- 设置 KV 路由（4 个端点：获取全部/获取单个/批量设置/删除）
+- API 更新路由（`PUT /api/update`，支持加密更新 name/api_key/secret_key/passphrase）
+- 合约余额获取（`fetchBalance({ type: 'swap' })`）
+- 资产类型推断（区分 SPOT/FUTURES/MARGIN/EARN/FUNDING）
+- 充提统计真实数据（BTC 价格 + 合约未实现 PnL + 首次快照估算）
+
+**前端**
+- SettingsPage 设置页面（同步设置/显示设置/数据管理三组）
+- Dashboard "表现" Tab（PnL 概览卡片 + 资产趋势图 + 合约持仓详情）
+- Dashboard "分析" Tab（资产分布饼图 + 账户类型分布 + 充提统计 + 当前委托）
+- AccountTypeChart 内联组件（ECharts 环形图，按账户类型分布）
+- Toast 通知组件（ToastProvider + useToast，MUI Snackbar）
+- NotesPage 对接真实 API（标签 Chip 多选替代逗号输入）
+- TagsPage 对接真实 API（noteCount 字段映射）
+- ApiManagerPage 添加 Toast 操作反馈
+
+**核心包**
+- NoteTagService（标签 + 笔记完整 CRUD API 服务）
+- useNoteStore（Zustand，标签/笔记状态管理）
+- ExchangeService.updateExchangeApi（API 更新方法）
+
+### 变更
+
+- TradeTag 类型新增 `noteCount` 可选字段
+- Note 类型新增 `tags` 可选字段（关联标签数组）
+- getDepositWithdrawStats 改为 async 函数
+
 [0.2.0]: https://github.com/arwei944/trading-canvas/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/arwei944/trading-canvas/releases/tag/v0.1.0

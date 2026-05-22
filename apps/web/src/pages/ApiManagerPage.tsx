@@ -32,6 +32,7 @@ import {
 } from '@mui/icons-material';
 import { useExchangeStore } from '@trading.canvas/core';
 import { exchanges } from '@trading.canvas/core';
+import { useToast } from '../components/Toast';
 
 // 交易所列表
 const exchangeOptions = Object.values(exchanges).map(e => ({
@@ -43,6 +44,7 @@ const exchangeOptions = Object.values(exchanges).map(e => ({
  * API管理页面
  */
 export function ApiManagerPage() {
+  const { showToast } = useToast();
   const { exchanges, apis, addApi, removeApi, toggleStar, fetchExchanges } = useExchangeStore();
   
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -96,20 +98,29 @@ export function ApiManagerPage() {
       return;
     }
 
-    await addApi({
-      exchangeId: formData.exchangeId as any,
-      name: formData.name,
-      apiKey: formData.apiKey,
-      secretKey: formData.secretKey,
-      passphrase: formData.passphrase || undefined,
-    });
-
-    handleCloseDialog();
+    try {
+      await addApi({
+        exchangeId: formData.exchangeId as any,
+        name: formData.name,
+        apiKey: formData.apiKey,
+        secretKey: formData.secretKey,
+        passphrase: formData.passphrase || undefined,
+      });
+      showToast('API添加成功', 'success');
+      handleCloseDialog();
+    } catch (error: any) {
+      showToast('操作失败: ' + error.message, 'error');
+    }
   };
 
   const handleDelete = async (apiId: number) => {
     if (window.confirm('确定要删除这个API吗？')) {
-      await removeApi(apiId);
+      try {
+        await removeApi(apiId);
+        showToast('API已删除', 'success');
+      } catch (error: any) {
+        showToast('操作失败: ' + error.message, 'error');
+      }
     }
   };
 

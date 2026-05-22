@@ -27,6 +27,7 @@ import {
 } from '@mui/icons-material';
 import { useNoteStore } from '@trading.canvas/core';
 import type { Note as NoteType, TradeTag } from '@trading.canvas/core';
+import { useToast } from '../components/Toast';
 
 // 格式化时间
 const formatTime = (timestamp: number) => {
@@ -37,6 +38,7 @@ const formatTime = (timestamp: number) => {
  * 笔记页面
  */
 export function NotesPage() {
+  const { showToast } = useToast();
   const notes = useNoteStore(s => s.notes);
   const tags = useNoteStore(s => s.tags);
   const isLoading = useNoteStore(s => s.isLoading);
@@ -88,26 +90,37 @@ export function NotesPage() {
   const handleSubmit = async () => {
     if (!formData.title || !formData.content) return;
 
-    if (editNote) {
-      await updateNote(editNote.id, {
-        title: formData.title,
-        content: formData.content,
-        tagIds: selectedTagIds,
-      });
-    } else {
-      await addNote({
-        title: formData.title,
-        content: formData.content,
-        tagIds: selectedTagIds,
-      });
-    }
+    try {
+      if (editNote) {
+        await updateNote(editNote.id, {
+          title: formData.title,
+          content: formData.content,
+          tagIds: selectedTagIds,
+        });
+        showToast('笔记更新成功', 'success');
+      } else {
+        await addNote({
+          title: formData.title,
+          content: formData.content,
+          tagIds: selectedTagIds,
+        });
+        showToast('笔记添加成功', 'success');
+      }
 
-    handleCloseDialog();
+      handleCloseDialog();
+    } catch (error: any) {
+      showToast('操作失败: ' + error.message, 'error');
+    }
   };
 
   const handleDelete = async (noteId: number) => {
     if (window.confirm('确定要删除这篇笔记吗？')) {
-      await deleteNote(noteId);
+      try {
+        await deleteNote(noteId);
+        showToast('笔记已删除', 'success');
+      } catch (error: any) {
+        showToast('操作失败: ' + error.message, 'error');
+      }
     }
   };
 

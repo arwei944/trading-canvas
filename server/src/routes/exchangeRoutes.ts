@@ -59,6 +59,23 @@ apiRouter.put('/api/star', (req: Request, res: Response) => {
   }
 });
 
+// 更新 API
+apiRouter.put('/api/update', (req: Request, res: Response) => {
+  try {
+    const { apiId, ...data } = req.body;
+    if (!apiId) {
+      return res.json(fail('apiId is required'));
+    }
+    const result = exchangeService.updateExchangeApi(Number(apiId), data);
+    if (!result) {
+      return res.json(fail('API not found or no changes'));
+    }
+    res.json(success(result));
+  } catch (err: any) {
+    res.json(fail(err.message));
+  }
+});
+
 // 检查 API 权限
 apiRouter.get('/api/checkApiIdPermissions', async (req: Request, res: Response) => {
   try {

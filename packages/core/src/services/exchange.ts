@@ -131,6 +131,18 @@ export class ExchangeService {
     await apiClient.delete<void>('/ex/api/delete', { apiId } as Record<string, unknown>);
   }
 
+  // 更新交易所 API
+  static async updateExchangeApi(data: {
+    apiId: number;
+    name?: string;
+    api_key?: string;
+    secret_key?: string;
+    passphrase?: string;
+  }): Promise<ExchangeAPI> {
+    const { apiId, ...body } = data;
+    return apiClient.put<ExchangeAPI>('/ex/api/update', { apiId, ...body } as Record<string, unknown>);
+  }
+
   // 切换星标
   static async toggleStarApi(apiId: number): Promise<void> {
     await apiClient.put<void>('/ex/api/star', { apiId } as Record<string, unknown>);

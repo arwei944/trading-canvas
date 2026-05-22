@@ -26,11 +26,13 @@ import {
 } from '@mui/icons-material';
 import { useNoteStore } from '@trading.canvas/core';
 import type { TradeTag } from '@trading.canvas/core';
+import { useToast } from '../components/Toast';
 
 /**
  * 标签管理页面
  */
 export function TagsPage() {
+  const { showToast } = useToast();
   const tags = useNoteStore(s => s.tags);
   const isLoading = useNoteStore(s => s.isLoading);
   const fetchTags = useNoteStore(s => s.fetchTags);
@@ -65,18 +67,29 @@ export function TagsPage() {
   const handleSubmit = async () => {
     if (!formData.name) return;
 
-    if (editTag) {
-      await updateTag(editTag.id, { name: formData.name, color: formData.color });
-    } else {
-      await addTag({ name: formData.name, color: formData.color });
-    }
+    try {
+      if (editTag) {
+        await updateTag(editTag.id, { name: formData.name, color: formData.color });
+        showToast('标签更新成功', 'success');
+      } else {
+        await addTag({ name: formData.name, color: formData.color });
+        showToast('标签添加成功', 'success');
+      }
 
-    handleCloseDialog();
+      handleCloseDialog();
+    } catch (error: any) {
+      showToast('操作失败: ' + error.message, 'error');
+    }
   };
 
   const handleDelete = async (tagId: number) => {
     if (window.confirm('确定要删除这个标签吗？')) {
-      await deleteTag(tagId);
+      try {
+        await deleteTag(tagId);
+        showToast('标签已删除', 'success');
+      } catch (error: any) {
+        showToast('操作失败: ' + error.message, 'error');
+      }
     }
   };
 
