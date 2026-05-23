@@ -14,8 +14,10 @@ COPY packages/hooks/package.json ./packages/hooks/
 COPY apps/web/package.json ./apps/web/
 COPY server/package.json ./server/
 
+# Install ALL dependencies (including devDependencies for build)
 RUN pnpm install --frozen-lockfile
 
+# Copy source code
 COPY . .
 
 # Build shared packages
@@ -34,15 +36,19 @@ FROM node:20-alpine AS production
 RUN corepack enable && corepack prepare pnpm@9 --activate
 WORKDIR /app
 
-# Copy package files
+# Copy all package files for production install
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/core/package.json ./packages/core/
 COPY packages/hooks/package.json ./packages/hooks/
 COPY apps/web/package.json ./apps/web/
 COPY server/package.json ./server/
 
-# Install production dependencies only
-RUN pnpm install --frozen-lockfile --prod
+# Copy source files needed for runtime
+COPY packages/core/src/ ./packages/core/src/
+COPY packages/hooks/src/ ./packages/hooks/src/
+
+# Install ALL dependencies (workspace packages need their deps)
+RUN pnpm install --frozen-lockfile
 
 # Copy built frontend
 COPY --from=builder /app/apps/web/dist ./apps/web/dist
@@ -50,10 +56,7 @@ COPY --from=builder /app/apps/web/dist ./apps/web/dist
 # Copy compiled server (dist)
 COPY --from=builder /app/server/dist ./server/dist
 
-# Copy necessary source for runtime (if any)
-COPY packages/core/src/ ./packages/core/src/
-COPY packages/hooks/src/ ./packages/hooks/src/
-
+# Create data directory
 RUN mkdir -p /app/data
 
 ENV NODE_ENV=production
