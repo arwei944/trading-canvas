@@ -64,5 +64,9 @@ ENV SYNC_INTERVAL_MINUTES=5
 
 EXPOSE 7860
 
+# Health check for Hugging Face Spaces
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:7860/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
 # Use compiled JS to start (stable & fast)
 CMD ["node", "server/dist/index.js"]
