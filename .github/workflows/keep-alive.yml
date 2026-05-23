@@ -1,0 +1,35 @@
+name: Keep HF Space Alive
+
+on:
+  schedule:
+    # 每 12 小时访问一次，防止休眠（48小时限制）
+    - cron: '0 */12 * * *'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Ping HF Space Health Endpoint
+        run: |
+          echo "Pinging HF Space to prevent sleep..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 \
+            "https://arwei944-trading-canvas.hf.space/health" || echo "000")
+          
+          if [ "$response" = "200" ]; then
+            echo "✅ Space is awake and healthy"
+            exit 0
+          elif [ "$response" = "000" ]; then
+            echo "⚠️ Connection failed - Space may be sleeping or network issue"
+            # 不失败，因为可能是网络问题而非 Space 问题
+            exit 0
+          else
+            echo "⚠️ Unexpected response: $response"
+            exit 0
+          fi
+        
+      - name: Notify on failure (optional)
+        if: failure()
+        run: |
+          echo "Failed to ping Space. Check if HF_TOKEN is configured."
