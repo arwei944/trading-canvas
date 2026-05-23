@@ -7,7 +7,46 @@
 
 ---
 
-## [0.2.0] - 2026-05-22
+## [1.0.0] - 2026-05-22
+
+### 新增
+
+**后端**
+- 历史委托路由（GET /historyOrders，通过 ccxt fetchMyTrades）
+- 同步日志持久化（sync_logs 表 + syncLogService）
+- 同步日志查询路由（GET /syncLogs）
+- HistoryOrder 类型定义
+
+**DevOps**
+- Docker 多阶段构建（Dockerfile + docker-compose.yml）
+- GitHub Actions CI workflow（Node 18/20 矩阵测试）
+- GitHub Actions Release workflow（自动创建 Release）
+- 生产环境配置模板（.env.production.example）
+
+**安全与性能**
+- helmet 安全中间件（HTTP 头部加固）
+- compression 响应压缩（gzip）
+- CORS 可配置跨域支持
+- 进程级错误处理（uncaughtException/unhandledRejection）
+- 生产环境静态文件服务（SPA 路由支持）
+- 开发环境请求日志
+
+**测试**
+- tagService 数据库操作测试（7 个用例）
+- noteService 数据库操作测试（3 个用例）
+- 路由模块加载测试（2 个用例）
+- noteStore 状态测试（5 个用例）
+- 测试总数从 7 增加到 21
+
+### 变更
+
+- getSyncState 改为从数据库读取（替代内存 Map）
+- 同步调度器集成 syncLogService 记录同步操作
+- 根 package.json 添加 typecheck script
+
+[1.0.0]: https://github.com/arwei944/trading-canvas/compare/v0.4.0...v1.0.0
+
+## [0.4.0] - 2026-05-22
 
 ### 新增
 
@@ -137,6 +176,7 @@
 
 - AccountDetailPage（与 Dashboard 功能重叠的冗余页面）
 
+[0.4.0]: https://github.com/arwei944/trading-canvas/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/arwei944/trading-canvas/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/arwei944/trading-canvas/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/arwei944/trading-canvas/releases/tag/v0.1.0

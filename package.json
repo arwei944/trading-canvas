@@ -1,6 +1,6 @@
 {
   "name": "trading-canvas",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "private": true,
   "description": "基于 BlockCanvas 的加密货币交易日志前端",
   "scripts": {
@@ -12,7 +12,8 @@
     "lint": "pnpm --filter web lint",
     "clean": "rm -rf node_modules packages/*/dist apps/*/dist",
     "server:dev": "pnpm --filter @trading.canvas/server dev",
-    "server:build": "pnpm --filter @trading.canvas/server build"
+    "server:build": "pnpm --filter @trading.canvas/server build",
+    "typecheck": "pnpm --filter web typecheck"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
