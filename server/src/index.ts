@@ -7,6 +7,16 @@ import { createApp } from './app.js';
 import { initDatabase } from './db/index.js';
 import { startSyncScheduler } from './services/syncScheduler.js';
 
+// 未捕获的异常处理
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 const PORT = Number(process.env.PORT) || 3001;
 
 async function main() {
