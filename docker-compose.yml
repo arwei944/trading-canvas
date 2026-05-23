@@ -5,18 +5,16 @@ services:
     build: .
     container_name: trading-canvas
     ports:
-      - "3001:3001"
+      - "7860:7860"
     volumes:
       - trading-data:/app/data
-      - trading-env:/app/.env
     environment:
       - NODE_ENV=production
-      - PORT=3001
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-please-change-this-key-32bytes}
+      - PORT=7860
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-please-change-this-key-32-bytes!!}
       - DB_PATH=/app/data/trading-canvas.db
       - SYNC_INTERVAL_MINUTES=${SYNC_INTERVAL_MINUTES:-5}
     restart: unless-stopped
 
 volumes:
   trading-data:
-  trading-env:

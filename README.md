@@ -1,3 +1,12 @@
+---
+title: Trading Canvas
+emoji: 📈
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # TradingCanvas
 
 个人加密货币交易日志管理平台。追踪资产变动、记录交易笔记、分析盈亏表现。
@@ -107,7 +116,13 @@ cp .env.production.example .env
 docker compose up -d
 ```
 
-访问 http://localhost:3000。
+访问 http://localhost:7860。
+
+### 方式三：Hugging Face Spaces
+
+本项目已配置 Hugging Face Spaces Docker 部署。Fork 此仓库到你的 HF Space 即可自动部署。
+
+**注意**：首次部署后，建议在 Space 设置中修改 `ENCRYPTION_KEY` 环境变量以提高安全性。
 
 ### 运行测试
 

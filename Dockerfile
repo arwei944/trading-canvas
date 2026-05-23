@@ -1,3 +1,6 @@
+# TradingCanvas Dockerfile
+# Port 7860 for Hugging Face Spaces compatibility
+
 # Build stage
 FROM node:20-alpine AS builder
 
@@ -49,12 +52,16 @@ COPY packages/hooks/src/ ./packages/hooks/src/
 # Create data directory
 RUN mkdir -p /app/data
 
-# Environment
+# Environment defaults
 ENV NODE_ENV=production
-ENV PORT=3001
+ENV PORT=7860
 ENV DB_PATH=/app/data/trading-canvas.db
+# Default encryption key (32 bytes) - should be changed in production
+ENV ENCRYPTION_KEY=please-change-this-key-32-bytes!!
+ENV SYNC_INTERVAL_MINUTES=5
 
-EXPOSE 3001 5173
+# Port 7860 (Hugging Face Spaces requirement)
+EXPOSE 7860
 
-# Start both server and serve frontend
+# Start server
 CMD ["node", "server/src/index.js"]
