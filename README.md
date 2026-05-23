@@ -9,8 +9,12 @@
 - **交易日历** — 热力图展示每日盈亏
 - **交易笔记** — 记录交易思路，支持标签分类
 - **API 管理** — 安全管理交易所 API Key（AES-256-GCM 加密）
+- **历史委托** — 查看历史成交记录
+- **同步日志** — 数据同步状态持久化，可追溯同步历史
 - **多语言** — 支持中文/英文切换
 - **数据同步** — 定时自动同步交易所数据
+- **Docker 部署** — 一键容器化部署
+- **CI/CD** — GitHub Actions 自动测试和发布
 
 ## 技术栈
 
@@ -21,7 +25,9 @@
 | 后端 | Express + TypeScript + better-sqlite3 |
 | 交易所对接 | ccxt（支持 Binance、OKX、Bybit 等） |
 | 国际化 | react-i18next |
-| 测试 | Vitest + Testing Library |
+| 安全 | AES-256-GCM + helmet + CORS + compression |
+| 测试 | Vitest（21 个用例） |
+| 部署 | Docker + GitHub Actions |
 
 ## 项目结构
 
@@ -29,20 +35,22 @@
 trading-canvas/
 ├── apps/web/          # 前端应用
 │   └── src/
-│       ├── components/    # 通用组件
+│       ├── components/    # 通用组件 (9 个)
 │       ├── layouts/       # 布局组件
-│       ├── pages/         # 页面组件
-│       └── locales/       # 国际化文件
+│       ├── pages/         # 页面组件 (6 个)
+│       └── locales/       # 国际化文件 (中/英)
 ├── packages/
 │   ├── core/          # 核心包（类型、服务、Store）
-│   └── hooks/         # 自定义 Hooks
+│   └── hooks/         # 自定义 Hooks (React Query)
 ├── server/             # 后端服务
 │   └── src/
-│       ├── adapters/      # 交易所适配器
-│       ├── db/            # 数据库
-│       ├── routes/        # API 路由
-│       ├── services/      # 业务逻辑
+│       ├── adapters/      # 交易所适配器 (ccxt)
+│       ├── db/            # SQLite 数据库 (8 张表)
+│       ├── routes/        # API 路由 (5 个模块, 32+ 端点)
+│       ├── services/      # 业务逻辑 (7 个服务)
 │       └── utils/         # 工具函数
+├── .github/workflows/ # CI/CD
+├── Dockerfile          # Docker 多阶段构建
 ├── DEVELOPMENT.md     # 开发文档
 ├── VERSION_CONTROL.md # 版本管理规范
 ├── PROGRESS.md       # 开发进度
@@ -56,7 +64,7 @@ trading-canvas/
 - Node.js >= 18
 - pnpm >= 8
 
-### 安装
+### 方式一：本地开发
 
 ```bash
 git clone https://github.com/arwei944/trading-canvas.git
@@ -64,9 +72,7 @@ cd trading-canvas
 pnpm install
 ```
 
-### 配置
-
-复制环境变量模板并填写：
+配置环境变量：
 
 ```bash
 cp .env.example .env
@@ -79,7 +85,7 @@ cp .env.example .env
 | `DB_PATH` | 数据库路径 | `./data/trading-canvas.db` |
 | `SYNC_INTERVAL_MINUTES` | 同步间隔（分钟） | `5` |
 
-### 启动开发服务器
+启动开发服务器：
 
 ```bash
 # 启动后端
@@ -90,6 +96,18 @@ pnpm --filter web dev
 ```
 
 前端访问 http://localhost:5173，后端 API http://localhost:3001。
+
+### 方式二：Docker 部署
+
+```bash
+# 配置生产环境变量
+cp .env.production.example .env
+
+# 启动
+docker compose up -d
+```
+
+访问 http://localhost:3000。
 
 ### 运行测试
 
@@ -108,9 +126,22 @@ pnpm test
 | Bitget | ✅ | ✅ |
 | HTX | ✅ | ✅ |
 
+## 版本路线图
+
+| 版本 | 主题 | 状态 |
+|------|------|------|
+| v0.1.0 | 初始原型 | ✅ 已发布 |
+| v0.2.0 | 后端搭建 & 数据对接 | ✅ 已发布 |
+| v0.3.0 | 功能完善 & 体验优化 | ✅ 已发布 |
+| v0.4.0 | 架构重构 & 质量提升 | ✅ 已发布 |
+| v1.0.0 | 正式发布 | ✅ 已发布 |
+| v1.1.0 | 体验升级（暗色主题 + 分析增强） | 🔜 待开发 |
+| v1.2.0 | 实时化（WebSocket + 移动端 + PWA） | 📋 规划中 |
+| v1.3.0 | 质量加固（测试 + 高级分析） | 📋 规划中 |
+
 ## 文档
 
-- [开发文档](./DEVELOPMENT.md) — 架构设计、API 设计、数据库设计
+- [开发文档](./DEVELOPMENT.md) — 架构设计、API 设计、数据库设计、版本路线图
 - [版本管理规范](./VERSION_CONTROL.md) — Git Flow、Conventional Commits
 - [开发进度](./PROGRESS.md) — 各模块完成度和已知问题
 - [变更日志](./CHANGELOG.md) — 版本变更记录
