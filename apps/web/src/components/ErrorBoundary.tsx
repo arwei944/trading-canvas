@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
+import i18n from '../locales';
 
 interface Props {
   children: React.ReactNode;
@@ -24,10 +25,10 @@ export class ErrorBoundary extends React.Component<Props, State> {
     if (this.state.hasError) {
       return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh', gap: 2 }}>
-          <Typography variant="h6" color="error">出错了</Typography>
+          <Typography variant="h6" color="error">{i18n.t('common.errorTitle')}</Typography>
           <Typography color="text.secondary">{this.state.error?.message}</Typography>
           <Button variant="contained" onClick={() => this.setState({ hasError: false, error: null })}>
-            重试
+            {i18n.t('common.retry')}
           </Button>
         </Box>
       );

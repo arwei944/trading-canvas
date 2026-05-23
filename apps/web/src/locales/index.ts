@@ -16,7 +16,7 @@ i18n
       zh: { translation: zh },
       en: { translation: en },
     },
-    lng: localStorage.getItem('language') || getBrowserLanguage(),
+    lng: localStorage.getItem('language') || 'zh',
     fallbackLng: 'zh',
     interpolation: {
       escapeValue: false,

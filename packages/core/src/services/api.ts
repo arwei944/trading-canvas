@@ -18,22 +18,22 @@ class ApiClient {
 
   async get<T>(url: string, params?: Record<string, unknown>): Promise<T> {
     const response: AxiosResponse<ApiResponse<T>> = await this.client.get(url, { params });
-    return response.data.data;
+    return response.data?.data as T;
   }
 
   async post<T>(url: string, body?: Record<string, unknown>): Promise<T> {
     const response: AxiosResponse<ApiResponse<T>> = await this.client.post(url, body);
-    return response.data.data;
+    return response.data?.data as T;
   }
 
   async put<T>(url: string, body?: Record<string, unknown>): Promise<T> {
     const response: AxiosResponse<ApiResponse<T>> = await this.client.put(url, body);
-    return response.data.data;
+    return response.data?.data as T;
   }
 
   async delete<T>(url: string, params?: Record<string, unknown>): Promise<T> {
     const response: AxiosResponse<ApiResponse<T>> = await this.client.delete(url, { params });
-    return response.data.data;
+    return response.data?.data as T;
   }
 }
 

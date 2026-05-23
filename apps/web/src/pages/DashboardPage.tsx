@@ -75,7 +75,7 @@ function AccountTypeChart({ assets }: { assets: AssetBalance[] }) {
     }],
   };
 
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
     return <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>{t('dashboard.noData')}</Typography>;
   }
 

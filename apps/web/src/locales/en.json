@@ -219,7 +219,27 @@
     "success": "Success",
     "warning": "Warning",
     "operationSuccess": "Operation successful",
-    "operationFailed": "Operation failed"
+    "operationFailed": "Operation failed",
+    "other": "Other",
+    "retry": "Retry",
+    "errorTitle": "Error"
+  },
+  "assets": {
+    "coin": "Coin",
+    "price": "Price",
+    "allocation": "Allocation",
+    "quantity": "Quantity",
+    "value": "Value",
+    "pnl7d": "7D PnL",
+    "pnl30d": "30D PnL"
+  },
+  "trend": {
+    "value": "Value",
+    "24h": "24h",
+    "7d": "7D",
+    "30d": "30D",
+    "90d": "90D",
+    "fetchFailed": "Failed to fetch trend data"
   },
   "exchange": {
     "binance": "Binance",

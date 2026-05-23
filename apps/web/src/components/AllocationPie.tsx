@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Card, CardContent, Typography, Box } from '@mui/material';
 import ReactECharts from 'echarts-for-react';
 import { AssetBalance } from '@trading.canvas/core';
+import { useTranslation } from 'react-i18next';
 
 export interface AllocationPieProps {
   assets: AssetBalance[];
@@ -13,6 +14,8 @@ export interface AllocationPieProps {
  * 使用ECharts渲染交互式饼图
  */
 export function AllocationPie({ assets, loading }: AllocationPieProps) {
+  const { t } = useTranslation();
+
   // 处理数据，只显示Top 10，其余归为"其他"
   const chartData = useMemo(() => {
     if (!assets || assets.length === 0) return [];
@@ -25,7 +28,7 @@ export function AllocationPie({ assets, loading }: AllocationPieProps) {
     // 取前10
     const top10 = sorted.slice(0, 10);
     const rest = sorted.slice(10);
-    
+
     // 计算"其他"的总额
     const otherValue = rest.reduce((sum, a) => sum + Number(a.usdValuation || 0), 0);
 
@@ -36,13 +39,13 @@ export function AllocationPie({ assets, loading }: AllocationPieProps) {
 
     if (otherValue > 0) {
       result.push({
-        name: '其他',
+        name: t('common.other'),
         value: otherValue,
       });
     }
 
     return result;
-  }, [assets]);
+  }, [assets, t]);
 
   // 颜色配置
   const colors = [
@@ -69,7 +72,7 @@ export function AllocationPie({ assets, loading }: AllocationPieProps) {
     },
     series: [
       {
-        name: '资产分布',
+        name: t('dashboard.assetAllocation'),
         type: 'pie',
         radius: ['40%', '70%'],
         center: ['35%', '50%'],
@@ -109,14 +112,14 @@ export function AllocationPie({ assets, loading }: AllocationPieProps) {
         left: 'center',
         top: 'middle',
         style: {
-          text: '暂无数据',
+          text: t('common.noData'),
           textAlign: 'center',
           fill: '#666',
           fontSize: 14,
         },
       },
     ] : undefined,
-  }), [chartData]);
+  }), [chartData, t]);
 
   // 计算总市值
   const totalValue = useMemo(() => {
@@ -128,7 +131,7 @@ export function AllocationPie({ assets, loading }: AllocationPieProps) {
     return (
       <Card sx={{ height: '100%' }}>
         <CardContent>
-          <Typography>加载中...</Typography>
+          <Typography>{t('common.loading')}</Typography>
         </CardContent>
       </Card>
     );
@@ -138,7 +141,7 @@ export function AllocationPie({ assets, loading }: AllocationPieProps) {
     <Card sx={{ height: '100%' }}>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          资产分布
+          {t('dashboard.assetAllocation')}
         </Typography>
         <Typography variant="h4" color="primary" gutterBottom>
           ${totalValue.toFixed(2)}

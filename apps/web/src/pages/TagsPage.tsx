@@ -95,7 +95,7 @@ export function TagsPage() {
     }
   };
 
-  if (isLoading && tags.length === 0) {
+  if (isLoading && (!tags || tags.length === 0)) {
     return <ListSkeleton />;
   }
 
@@ -116,7 +116,7 @@ export function TagsPage() {
 
       <Card>
         <CardContent sx={{ p: 0 }}>
-          {tags.length === 0 ? (
+          {(!tags || tags.length === 0) ? (
             <Box sx={{ p: 4, textAlign: 'center' }}>
               <LocalOffer sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
               <Typography color="text.secondary">

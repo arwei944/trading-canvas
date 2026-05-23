@@ -13,6 +13,7 @@ import {
   Box,
 } from '@mui/material';
 import { OrderData } from '@trading.canvas/core';
+import { useTranslation } from 'react-i18next';
 
 export interface OrderTableProps {
   orders: OrderData[];
@@ -24,27 +25,29 @@ export interface OrderTableProps {
  * 显示所有历史委托订单
  */
 export function OrderTable({ orders, loading }: OrderTableProps) {
+  const { t } = useTranslation();
+
   // 订单状态映射
   const getStatusInfo = (status: number) => {
     switch (status) {
       case 0:
-        return { label: '等待中', color: 'warning' as const };
+        return { label: t('orders.pending'), color: 'warning' as const };
       case 1:
-        return { label: '部分成交', color: 'info' as const };
+        return { label: t('orders.partial'), color: 'info' as const };
       case 2:
-        return { label: '完全成交', color: 'success' as const };
+        return { label: t('orders.filledStatus'), color: 'success' as const };
       case 3:
-        return { label: '已撤销', color: 'default' as const };
+        return { label: t('orders.cancelled'), color: 'default' as const };
       case 4:
-        return { label: '无效', color: 'error' as const };
+        return { label: t('orders.invalid'), color: 'error' as const };
       default:
-        return { label: '未知', color: 'default' as const };
+        return { label: t('orders.invalid'), color: 'default' as const };
     }
   };
 
   // 订单方向
   const getSideText = (side: string) => {
-    return side === 'BUY' ? '买入' : '卖出';
+    return side === 'BUY' ? t('orders.buy') : t('orders.sell');
   };
 
   const getSideColor = (side: string) => {
@@ -55,21 +58,21 @@ export function OrderTable({ orders, loading }: OrderTableProps) {
   const getOrderTypeText = (type: string) => {
     switch (type) {
       case 'LIMIT':
-        return '限价';
+        return t('orders.limit');
       case 'MARKET':
-        return '市价';
+        return t('orders.market');
       case 'STOP':
-        return '止损';
+        return t('orders.stop');
       case 'STOP_MARKET':
-        return '止损市价';
+        return t('orders.stopMarket');
       case 'TAKE_PROFIT':
-        return '止盈';
+        return t('orders.takeProfit');
       case 'TAKE_PROFIT_MARKET':
-        return '止盈市价';
+        return t('orders.takeProfitMarket');
       case 'TRAILING_STOP_MARKET':
-        return '追踪止损';
+        return type;
       default:
-        return type || '限价';
+        return type || t('orders.limit');
     }
   };
 
@@ -82,7 +85,7 @@ export function OrderTable({ orders, loading }: OrderTableProps) {
     return (
       <Card>
         <CardContent>
-          <Typography>加载中...</Typography>
+          <Typography>{t('common.loading')}</Typography>
         </CardContent>
       </Card>
     );
@@ -93,7 +96,7 @@ export function OrderTable({ orders, loading }: OrderTableProps) {
       <Card>
         <CardContent>
           <Typography color="text.secondary" align="center">
-            暂无委托记录
+            {t('dashboard.noOrders')}
           </Typography>
         </CardContent>
       </Card>
@@ -107,17 +110,17 @@ export function OrderTable({ orders, loading }: OrderTableProps) {
           <Table size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: 'background.default' }}>
-                <TableCell>时间</TableCell>
-                <TableCell>交易所</TableCell>
-                <TableCell>交易对</TableCell>
-                <TableCell align="center">方向</TableCell>
-                <TableCell>类型</TableCell>
-                <TableCell align="right">委托价格</TableCell>
-                <TableCell align="right">委托数量</TableCell>
-                <TableCell align="right">成交数量</TableCell>
-                <TableCell align="right">成交均价</TableCell>
-                <TableCell align="right">成交金额</TableCell>
-                <TableCell align="center">状态</TableCell>
+                <TableCell>{t('orders.time')}</TableCell>
+                <TableCell>{t('orders.exchange')}</TableCell>
+                <TableCell>{t('orders.symbol')}</TableCell>
+                <TableCell align="center">{t('orders.side')}</TableCell>
+                <TableCell>{t('orders.type')}</TableCell>
+                <TableCell align="right">{t('orders.price')}</TableCell>
+                <TableCell align="right">{t('orders.amount')}</TableCell>
+                <TableCell align="right">{t('orders.filled')}</TableCell>
+                <TableCell align="right">{t('orders.avgPrice')}</TableCell>
+                <TableCell align="right">{t('orders.total')}</TableCell>
+                <TableCell align="center">{t('orders.status')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -145,7 +148,7 @@ export function OrderTable({ orders, loading }: OrderTableProps) {
                     </TableCell>
                     <TableCell>{getOrderTypeText(order.type)}</TableCell>
                     <TableCell align="right">
-                      {order.price ? `$${Number(order.price).toFixed(2)}` : '市价'}
+                      {order.price ? `$${Number(order.price).toFixed(2)}` : t('orders.market')}
                     </TableCell>
                     <TableCell align="right">
                       {Number(order.origQty || order.amount).toFixed(4)}

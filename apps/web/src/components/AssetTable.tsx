@@ -14,16 +14,19 @@ import {
   Chip,
 } from '@mui/material';
 import type { AssetBalance } from '@trading.canvas/core';
+import { useTranslation } from 'react-i18next';
 
 interface AssetTableProps {
   assets: AssetBalance[];
 }
 
 export function AssetTable({ assets }: AssetTableProps) {
-  if (assets.length === 0) {
+  const { t } = useTranslation();
+
+  if (!assets || assets.length === 0) {
     return (
       <Box sx={{ textAlign: 'center', py: 4 }}>
-        <Typography color="text.secondary">暂无资产</Typography>
+        <Typography color="text.secondary">{t('dashboard.noData')}</Typography>
       </Box>
     );
   }
@@ -40,14 +43,14 @@ export function AssetTable({ assets }: AssetTableProps) {
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>币种</TableCell>
-            <TableCell align="right">价格</TableCell>
-            <TableCell align="right">资产分配</TableCell>
-            <TableCell align="right">数量</TableCell>
-            <TableCell align="right">价值</TableCell>
-            <TableCell align="right">24h盈亏</TableCell>
-            <TableCell align="right">7天盈亏</TableCell>
-            <TableCell align="right">30天盈亏</TableCell>
+            <TableCell>{t('assets.coin')}</TableCell>
+            <TableCell align="right">{t('assets.price')}</TableCell>
+            <TableCell align="right">{t('assets.allocation')}</TableCell>
+            <TableCell align="right">{t('assets.quantity')}</TableCell>
+            <TableCell align="right">{t('assets.value')}</TableCell>
+            <TableCell align="right">{t('dashboard.change24h')}</TableCell>
+            <TableCell align="right">{t('assets.pnl7d')}</TableCell>
+            <TableCell align="right">{t('assets.pnl30d')}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

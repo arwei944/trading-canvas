@@ -5,6 +5,7 @@ import ReactECharts from 'echarts-for-react';
 import { Box, ToggleButtonGroup, ToggleButton, Typography, CircularProgress } from '@mui/material';
 import { exchangeService } from '@trading.canvas/core';
 import type { TrendData } from '@trading.canvas/core';
+import { useTranslation } from 'react-i18next';
 
 interface TrendChartProps {
   apiId?: number | null;
@@ -15,6 +16,7 @@ interface TrendChartProps {
 type Interval = '24h' | '7d' | '30d' | '90d';
 
 export function TrendChart({ apiId, height = 300, data: propData }: TrendChartProps) {
+  const { t } = useTranslation();
   const [interval, setInterval] = useState<Interval>('24h');
   const [data, setData] = useState<TrendData[]>(propData || []);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,9 +34,9 @@ export function TrendChart({ apiId, height = 300, data: propData }: TrendChartPr
     exchangeService
       .getTrendChart(apiId, interval)
       .then(setData)
-      .catch((err: any) => setError(err.message || '获取趋势数据失败'))
+      .catch((err: any) => setError(err.message || t('trend.fetchFailed')))
       .finally(() => setIsLoading(false));
-  }, [apiId, interval, propData]);
+  }, [apiId, interval, propData, t]);
 
   const option = {
     grid: {
@@ -47,7 +49,7 @@ export function TrendChart({ apiId, height = 300, data: propData }: TrendChartPr
       trigger: 'axis',
       formatter: (params: any) => {
         const point = params[0];
-        return `${point.name}<br/>价值: $${point.value.toFixed(2)}`;
+        return `${point.name}<br/>${t('trend.value')}: $${point.value.toFixed(2)}`;
       },
     },
     xAxis: {
@@ -72,7 +74,7 @@ export function TrendChart({ apiId, height = 300, data: propData }: TrendChartPr
     },
     series: [
       {
-        name: '资产价值',
+        name: t('dashboard.trendChart'),
         type: 'line',
         smooth: true,
         symbol: 'none',
@@ -108,10 +110,10 @@ export function TrendChart({ apiId, height = 300, data: propData }: TrendChartPr
             onChange={(_, v) => v && setInterval(v)}
             size="small"
           >
-            <ToggleButton value="24h">24小时</ToggleButton>
-            <ToggleButton value="7d">7天</ToggleButton>
-            <ToggleButton value="30d">30天</ToggleButton>
-            <ToggleButton value="90d">90天</ToggleButton>
+            <ToggleButton value="24h">{t('trend.24h')}</ToggleButton>
+            <ToggleButton value="7d">{t('trend.7d')}</ToggleButton>
+            <ToggleButton value="30d">{t('trend.30d')}</ToggleButton>
+            <ToggleButton value="90d">{t('trend.90d')}</ToggleButton>
           </ToggleButtonGroup>
         </Box>
       )}

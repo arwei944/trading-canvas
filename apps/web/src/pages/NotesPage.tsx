@@ -126,7 +126,7 @@ export function NotesPage() {
     }
   };
 
-  if (isLoading && notes.length === 0) {
+  if (isLoading && (!notes || notes.length === 0)) {
     return <ListSkeleton />;
   }
 
@@ -147,7 +147,7 @@ export function NotesPage() {
 
       <Card>
         <CardContent sx={{ p: 0 }}>
-          {notes.length === 0 ? (
+          {(!notes || notes.length === 0) ? (
             <Box sx={{ p: 4, textAlign: 'center' }}>
               <Note sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
               <Typography color="text.secondary">
@@ -245,12 +245,12 @@ export function NotesPage() {
                 {t('notes.selectTags')}
               </Typography>
               <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                {tags.length === 0 && (
+                {(!tags || tags.length === 0) && (
                   <Typography variant="caption" color="text.disabled">
                     {t('notes.noTagsInDialog')}
                   </Typography>
                 )}
-                {tags.map((tag) => {
+                {tags && tags.map((tag) => {
                   const isSelected = selectedTagIds.includes(tag.id);
                   return (
                     <Chip

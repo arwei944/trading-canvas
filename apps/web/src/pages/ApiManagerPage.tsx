@@ -149,7 +149,7 @@ export function ApiManagerPage() {
       ) : (
       <Card>
         <CardContent sx={{ p: 0 }}>
-          {apis.length === 0 ? (
+          {(!apis || apis.length === 0) ? (
             <Box sx={{ p: 4, textAlign: 'center' }}>
               <Typography color="text.secondary">
                 {t('api.noApis')}

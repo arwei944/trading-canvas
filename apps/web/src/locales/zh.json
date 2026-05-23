@@ -219,7 +219,27 @@
     "success": "成功",
     "warning": "警告",
     "operationSuccess": "操作成功",
-    "operationFailed": "操作失败"
+    "operationFailed": "操作失败",
+    "other": "其他",
+    "retry": "重试",
+    "errorTitle": "出错了"
+  },
+  "assets": {
+    "coin": "币种",
+    "price": "价格",
+    "allocation": "资产分配",
+    "quantity": "数量",
+    "value": "价值",
+    "pnl7d": "7天盈亏",
+    "pnl30d": "30天盈亏"
+  },
+  "trend": {
+    "value": "价值",
+    "24h": "24小时",
+    "7d": "7天",
+    "30d": "30天",
+    "90d": "90天",
+    "fetchFailed": "获取趋势数据失败"
   },
   "exchange": {
     "binance": "币安",
