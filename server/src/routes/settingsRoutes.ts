@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import * as settingsService from '../services/settingsService.js';
 import { success, fail } from '../utils/response.js';
 
-export const settingsRouter = Router();
+export const settingsRouter: Router = Router();
 
 // 获取所有设置
 settingsRouter.get('/', (_req: Request, res: Response) => {

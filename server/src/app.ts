@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import type { Router as ExpressRouter } from 'express';
 import { apiRouter } from './routes/exchangeRoutes.js';
 import { dataRouter } from './routes/dataRoutes.js';
 import { tagRouter } from './routes/tagRoutes.js';

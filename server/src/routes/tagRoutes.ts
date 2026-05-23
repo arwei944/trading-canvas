@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import * as tagService from '../services/tagService.js';
 import { success, fail } from '../utils/response.js';
 
-export const tagRouter = Router();
+export const tagRouter: Router = Router();
 
 // 获取所有标签
 tagRouter.get('/', (_req: Request, res: Response) => {

@@ -107,3 +107,22 @@ export interface HistoryOrder {
   timestamp: number;
   datetime: string;
 }
+
+export type AccountType = 'SPOT' | 'MARGIN' | 'FUTURES' | 'FUNDING' | 'EARN' | 'LENDING';
+
+export interface PagedAssets {
+  total: number;
+  pageSize: number;
+  pageNum: number;
+  list: AssetBalance[];
+}
+
+export interface AssetResponse {
+  ALL: PagedAssets;
+  SPOT: PagedAssets;
+  MARGIN: PagedAssets;
+  FUTURES: PagedAssets;
+  FUNDING: PagedAssets;
+  EARN: PagedAssets;
+  LENDING: PagedAssets;
+}

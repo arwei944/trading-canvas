@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import * as exchangeService from '../services/exchangeService.js';
 import { success, fail } from '../utils/response.js';
 
-export const apiRouter = Router();
+export const apiRouter: Router = Router();
 
 // 获取交易所列表
 apiRouter.get('/api/ex_list', (_req: Request, res: Response) => {

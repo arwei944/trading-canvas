@@ -166,11 +166,11 @@ export async function getAssets(
   // 处理余额数据，返回带类型的币种列表
   const processBalances = (balance: any, balanceType: string) => {
     const totalBalances = balance.total || {};
-    return Object.entries(totalBalances)
+    return (Object.entries(totalBalances) as [string, number][])
       .filter(([, amount]) => amount > 0)
       .map(([currency, amount]) => ({
         currency,
-        amount: amount as number,
+        amount,
         type: inferAccountType(api.exchange_id, currency, balanceType),
       }));
   };
@@ -276,7 +276,7 @@ export async function getAssets(
     byType.set(type, []);
   }
   assetBalances.forEach(a => {
-    const t = a.type || 'SPOT';
+    const t = (a.type || 'SPOT') as AccountType;
     byType.get(t)!.push(a);
   });
 
@@ -660,7 +660,7 @@ export async function syncApiData(apiId: number): Promise<void> {
     const nonStablecoins = ['USDT', 'USDC', 'BUSD', 'DAI', 'TUSD', 'USDP', 'FDUSD'];
 
     // 先获取价格
-    const currenciesToPrice = Object.entries(totalBalances)
+    const currenciesToPrice = (Object.entries(totalBalances) as [string, number][])
       .filter(([currency, amount]) => amount > 0 && !nonStablecoins.includes(currency))
       .map(([currency]) => currency);
 
@@ -683,7 +683,7 @@ export async function syncApiData(apiId: number): Promise<void> {
 
     // 计算总资产
     let recordsSynced = 0;
-    for (const [currency, amount] of Object.entries(totalBalances)) {
+    for (const [currency, amount] of (Object.entries(totalBalances) as [string, number][])) {
       if (amount <= 0) continue;
       recordsSynced++;
       if (nonStablecoins.includes(currency)) {

@@ -11,7 +11,8 @@ const EXCHANGE_MAP: Record<number, string> = {
   8: 'huobi',
 };
 
-export function createExchange(api: ExchangeApi): ccxt.Exchange {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createExchange(api: ExchangeApi): any {
   const exchangeName = EXCHANGE_MAP[api.exchange_id];
   if (!exchangeName) {
     throw new Error(`Unsupported exchange: ${api.exchange_id}`);

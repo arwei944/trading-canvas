@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import * as noteService from '../services/noteService.js';
 import { success, fail } from '../utils/response.js';
 
-export const noteRouter = Router();
+export const noteRouter: Router = Router();
 
 // 获取所有笔记
 noteRouter.get('/', (_req: Request, res: Response) => {

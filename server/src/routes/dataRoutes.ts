@@ -3,7 +3,7 @@ import * as dataService from '../services/dataSyncService.js';
 import { getSyncLogs } from '../services/syncLogService.js';
 import { success, fail } from '../utils/response.js';
 
-export const dataRouter = Router();
+export const dataRouter: Router = Router();
 
 // ============ 价格接口 ============
 
