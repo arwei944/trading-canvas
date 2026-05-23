@@ -4,7 +4,7 @@
 # Build stage
 FROM node:20-alpine AS builder
 
-RUN corepack enable && corepack prepare pnpm@8 --activate
+RUN corepack enable && corepack prepare pnpm@9 --activate
 
 WORKDIR /app
 
@@ -27,7 +27,7 @@ RUN pnpm --filter web build
 # Production stage
 FROM node:20-alpine AS production
 
-RUN corepack enable && corepack prepare pnpm@8 --activate
+RUN corepack enable && corepack prepare pnpm@9 --activate
 
 WORKDIR /app
 
