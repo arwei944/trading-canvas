@@ -16,8 +16,23 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export function createApp(): express.Application {
   const app = express();
 
-  // 安全中间件
-  app.use(helmet());
+  // 安全中间件 - 配置 CSP 允许前端脚本执行
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+        imgSrc: ["'self'", "data:", "blob:"],
+        fontSrc: ["'self'", "https:", "data:"],
+        connectSrc: ["'self'"],
+        mediaSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'self'"],
+        upgradeInsecureRequests: [],
+      },
+    },
+  }));
 
   // CORS 配置
   app.use(cors({
