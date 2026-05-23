@@ -162,6 +162,9 @@ importers:
       node-cron:
         specifier: ^3.0.3
         version: 3.0.3
+      tsx:
+        specifier: ^4.7.0
+        version: 4.22.3
     devDependencies:
       '@types/better-sqlite3':
         specifier: ^7.6.8
@@ -175,9 +178,6 @@ importers:
       '@types/node-cron':
         specifier: ^3.0.11
         version: 3.0.11
-      tsx:
-        specifier: ^4.7.0
-        version: 4.22.3
       typescript:
         specifier: ^5.4.0
         version: 5.9.3

@@ -63,5 +63,5 @@ ENV SYNC_INTERVAL_MINUTES=5
 # Port 7860 (Hugging Face Spaces requirement)
 EXPOSE 7860
 
-# Start server
-CMD ["node", "server/src/index.js"]
+# Start server with tsx (TypeScript runtime)
+CMD ["npx", "tsx", "server/src/index.ts"]
