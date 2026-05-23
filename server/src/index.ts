@@ -29,8 +29,8 @@ async function main() {
   // 启动定时同步调度器
   startSyncScheduler();
 
-  app.listen(PORT, () => {
-    console.log(`🚀 TradingCanvas Server running on http://localhost:${PORT}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 TradingCanvas Server running on http://0.0.0.0:${PORT}`);
   });
 }
 
